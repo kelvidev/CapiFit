@@ -1,0 +1,145 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "fitvara: subir emulador",
+      "detail": "Cria (se preciso) e inicia o AVD fitvara_api35",
+      "type": "shell",
+      "command": "./scripts/emulator.sh",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "ANDROID_HOME": "/home/study/Android/Sdk",
+          "ANDROID_SDK_ROOT": "/home/study/Android/Sdk",
+          "JAVA_HOME": "/home/study/.jdks/temurin-21",
+          "PATH": "/home/study/Android/Sdk/platform-tools:/home/study/Android/Sdk/emulator:/home/study/Android/Sdk/cmdline-tools/latest/bin:${env:PATH}"
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "fitvara: build debug",
+      "type": "shell",
+      "command": "./gradlew assembleDebug",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "ANDROID_HOME": "/home/study/Android/Sdk",
+          "ANDROID_SDK_ROOT": "/home/study/Android/Sdk",
+          "JAVA_HOME": "/home/study/.jdks/temurin-21",
+          "PATH": "/home/study/Android/Sdk/platform-tools:/home/study/Android/Sdk/emulator:/home/study/Android/Sdk/cmdline-tools/latest/bin:${env:PATH}"
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "fitvara: rodar no emulador",
+      "detail": "Compila, instala e abre o app no device/emulador conectado",
+      "type": "shell",
+      "command": "./scripts/run.sh",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "ANDROID_HOME": "/home/study/Android/Sdk",
+          "ANDROID_SDK_ROOT": "/home/study/Android/Sdk",
+          "JAVA_HOME": "/home/study/.jdks/temurin-21",
+          "PATH": "/home/study/Android/Sdk/platform-tools:/home/study/Android/Sdk/emulator:/home/study/Android/Sdk/cmdline-tools/latest/bin:${env:PATH}"
+        }
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "fitvara: instalar debug",
+      "type": "shell",
+      "command": "./gradlew installDebug",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "ANDROID_HOME": "/home/study/Android/Sdk",
+          "ANDROID_SDK_ROOT": "/home/study/Android/Sdk",
+          "JAVA_HOME": "/home/study/.jdks/temurin-21",
+          "PATH": "/home/study/Android/Sdk/platform-tools:/home/study/Android/Sdk/emulator:/home/study/Android/Sdk/cmdline-tools/latest/bin:${env:PATH}"
+        }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "fitvara: devices conectados",
+      "type": "shell",
+      "command": "adb devices -l",
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "ANDROID_HOME": "/home/study/Android/Sdk",
+          "ANDROID_SDK_ROOT": "/home/study/Android/Sdk",
+          "JAVA_HOME": "/home/study/.jdks/temurin-21",
+          "PATH": "/home/study/Android/Sdk/platform-tools:/home/study/Android/Sdk/emulator:/home/study/Android/Sdk/cmdline-tools/latest/bin:${env:PATH}"
+        }
+      }
+    },
+    {
+      "label": "fitvara: logcat do app",
+      "type": "shell",
+      "command": "adb logcat --pid=$(adb shell pidof -s com.fitvara.app)",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "ANDROID_HOME": "/home/study/Android/Sdk",
+          "ANDROID_SDK_ROOT": "/home/study/Android/Sdk",
+          "JAVA_HOME": "/home/study/.jdks/temurin-21",
+          "PATH": "/home/study/Android/Sdk/platform-tools:/home/study/Android/Sdk/emulator:/home/study/Android/Sdk/cmdline-tools/latest/bin:${env:PATH}"
+        }
+      }
+    },
+    {
+      "label": "fitvara: testes unitarios",
+      "type": "shell",
+      "command": "./gradlew testDebugUnitTest",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "ANDROID_HOME": "/home/study/Android/Sdk",
+          "ANDROID_SDK_ROOT": "/home/study/Android/Sdk",
+          "JAVA_HOME": "/home/study/.jdks/temurin-21",
+          "PATH": "/home/study/Android/Sdk/platform-tools:/home/study/Android/Sdk/emulator:/home/study/Android/Sdk/cmdline-tools/latest/bin:${env:PATH}"
+        }
+      },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "fitvara: clean",
+      "type": "shell",
+      "command": "./gradlew clean",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "ANDROID_HOME": "/home/study/Android/Sdk",
+          "ANDROID_SDK_ROOT": "/home/study/Android/Sdk",
+          "JAVA_HOME": "/home/study/.jdks/temurin-21",
+          "PATH": "/home/study/Android/Sdk/platform-tools:/home/study/Android/Sdk/emulator:/home/study/Android/Sdk/cmdline-tools/latest/bin:${env:PATH}"
+        }
+      },
+      "problemMatcher": []
+    }
+  ]
+}

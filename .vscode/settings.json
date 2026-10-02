@@ -1,0 +1,27 @@
+{
+  "java.jdt.ls.java.home": "/home/study/.jdks/temurin-21",
+  "java.import.gradle.java.home": "/home/study/.jdks/temurin-21",
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-21",
+      "path": "/home/study/.jdks/temurin-21",
+      "default": true
+    }
+  ],
+  "java.import.gradle.wrapper.enabled": true,
+  "android-dev-ext.adbPort": 5037,
+  "terminal.integrated.env.linux": {
+    "ANDROID_HOME": "/home/study/Android/Sdk",
+    "ANDROID_SDK_ROOT": "/home/study/Android/Sdk",
+    "JAVA_HOME": "/home/study/.jdks/temurin-21",
+    "PATH": "/home/study/Android/Sdk/platform-tools:/home/study/Android/Sdk/emulator:/home/study/Android/Sdk/cmdline-tools/latest/bin:${env:PATH}"
+  },
+  "files.exclude": {
+    "**/.gradle": true,
+    "**/build": true
+  },
+  "files.watcherExclude": {
+    "**/.gradle/**": true,
+    "**/build/**": true
+  }
+}
