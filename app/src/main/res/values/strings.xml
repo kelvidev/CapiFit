@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">FitVara</string>
+
+    <string name="login_titulo">FitVara</string>
+    <string name="login_subtitulo">Sua capivara treina junto.</string>
+    <string name="login_email">E-mail</string>
+    <string name="login_senha">Senha</string>
+    <string name="login_entrar">Entrar</string>
+    <string name="login_lembrar">Lembrar de mim</string>
+    <string name="login_esqueci">Esqueci a senha</string>
+    <string name="login_sem_conta">Primeira vez por aqui?</string>
+    <string name="login_criar_conta">Criar conta</string>
+    <string name="login_rodape">Treino leve, constância de capivara.</string>
+
+    <string name="login_erro_email">Digite um e-mail válido</string>
+    <string name="login_erro_senha">A senha precisa de ao menos 6 caracteres</string>
+    <string name="login_boas_vindas">Bora treinar! 🦫</string>
+    <string name="login_recuperar_enviado">Enviamos um link de recuperação por e-mail</string>
+
+    <string name="login_mostrar_senha">Mostrar senha</string>
+    <string name="login_ocultar_senha">Ocultar senha</string>
+    <string name="login_mascote">Mascote da FitVara, uma capivara de faixa de treino</string>
+    <string name="login_carregando">Entrando</string>
+</resources>
