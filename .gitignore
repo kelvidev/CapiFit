@@ -1,0 +1,84 @@
+# ---------------------------------------------------------------------------
+# Fitvara - .gitignore
+# Projeto Android (Gradle + Kotlin). Quem clonar abre direto no Android Studio.
+# ---------------------------------------------------------------------------
+
+# --- Gradle ---------------------------------------------------------------
+.gradle/
+build/
+# O wrapper E versionado de proposito: sem o .jar ninguem consegue rodar ./gradlew.
+!gradle/wrapper/gradle-wrapper.jar
+gradle-app.setting
+.gradletasknamecache
+
+# Config de maquina (sdk.dir aponta pro SDK local de cada um).
+# O Android Studio recria esse arquivo sozinho no primeiro sync.
+local.properties
+
+# --- Kotlin ---------------------------------------------------------------
+.kotlin/
+
+# --- Android Studio / IntelliJ -------------------------------------------
+# .idea/ inteiro fora do versionamento: o Studio reconstroi tudo a partir do
+# Gradle no import, e manter esses arquivos so gera conflito entre a galera.
+.idea/
+*.iml
+*.ipr
+*.iws
+captures/
+.navigation/
+.externalNativeBuild/
+.cxx/
+
+# --- Saidas de build ------------------------------------------------------
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+out/
+release/
+lint-results*.html
+lint-results*.xml
+
+# --- Assinatura e segredos (NUNCA commitar) -------------------------------
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+secrets.properties
+*.p12
+*.pepk
+
+# --- Eclipse / Java Language Server (usado pelas extensoes do VS Code) ----
+.project
+.classpath
+.settings/
+.metadata/
+.factorypath
+
+# --- Logs, perfis e temporarios -------------------------------------------
+*.log
+*.hprof
+*.stackdump
+.cache/
+tmp/
+temp/
+
+# --- Sistema operacional --------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+desktop.ini
+$RECYCLE.BIN/
+.directory
+.Trash-*
+*~
+.*.swp
+.*.swo
