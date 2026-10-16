@@ -72,12 +72,21 @@ locais a esta maquina.
 
 ## Estrutura
 
+As telas sao implementadas a partir dos desenhos em `app/assets/` (pacote editavel
+de Figma): `01-login.svg` a `06-configuracoes.svg` sao a referencia visual, e
+`00-estilos.svg` define a paleta Trailside Pop e a tipografia.
+
 ```
+app/assets/                       desenho de referencia das telas (SVG)
 app/src/main/java/com/fitvara/app/
-  MainActivity.kt          tela inicial em Compose
-  ui/theme/                Color.kt, Theme.kt, Type.kt (Material 3 + dynamic color)
-app/src/test/              testes unitarios JVM
-gradle/libs.versions.toml  versoes centralizadas (version catalog)
-scripts/emulator.sh        cria e sobe o AVD
-scripts/run.sh             build + install + launch
+  MainActivity.kt                 navegacao por estado (Login -> Perfil)
+  ui/theme/                       Color.kt, Theme.kt, Type.kt (Material 3, so tema claro)
+  ui/components/Controles.kt      CampoTexto e BotaoPrincipal do design
+  ui/components/CapivaraMascote.kt  mascote desenhada em Compose Canvas
+  ui/login/                       LoginScreen.kt + ValidacaoLogin.kt
+  ui/perfil/PerfilScreen.kt       placeholder, proxima tela da fila
+app/src/test/                     testes unitarios JVM
+gradle/libs.versions.toml         versoes centralizadas (version catalog)
+scripts/emulator.sh               cria e sobe o AVD
+scripts/run.sh                    build + install + launch
 ```

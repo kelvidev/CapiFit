@@ -32,7 +32,7 @@ import com.fitvara.app.ui.theme.CapivaraEscura
 import com.fitvara.app.ui.theme.CapivaraPata
 import com.fitvara.app.ui.theme.Coral
 import com.fitvara.app.ui.theme.CoralClaro
-import com.fitvara.app.ui.theme.MateEscuro
+import com.fitvara.app.ui.theme.Folha
 import com.fitvara.app.ui.theme.Tinta
 
 /** A mascote e desenhada num espaco de 200x200 e escalada para o tamanho do Canvas. */
@@ -237,9 +237,9 @@ private fun DrawScope.desenharCapivara(
         moveTo(meio, 136f)
         lineTo(meio, 142f)
         moveTo(meio, 142f)
-        quadraticBezierTo(meio - 7f, 149f, meio - 14f, 145f)
+        quadraticTo(meio - 7f, 149f, meio - 14f, 145f)
         moveTo(meio, 142f)
-        quadraticBezierTo(meio + 7f, 149f, meio + 14f, 145f)
+        quadraticTo(meio + 7f, 149f, meio + 14f, 145f)
     }
     drawPath(boca, CapivaraEscura, style = Stroke(width = 3f, cap = StrokeCap.Round))
     // Dentinhos de roedor.
@@ -269,7 +269,7 @@ private fun DrawScope.desenharCapivara(
         for (lado in listOf(-1f, 1f)) {
             val cx = meio + lado * (pataX + 8f)
             drawRoundRectSimples(
-                cor = MateEscuro.copy(alpha = halter),
+                cor = Folha.copy(alpha = halter),
                 esquerda = cx - 8f,
                 topo = y - 15f,
                 direita = cx + 8f,
@@ -326,12 +326,12 @@ private fun caminhoArredondado(
     val r = raio.coerceAtMost(minOf(direita - esquerda, base - topo) / 2f)
     moveTo(esquerda + r, topo)
     lineTo(direita - r, topo)
-    quadraticBezierTo(direita, topo, direita, topo + r)
+    quadraticTo(direita, topo, direita, topo + r)
     lineTo(direita, base - r)
-    quadraticBezierTo(direita, base, direita - r, base)
+    quadraticTo(direita, base, direita - r, base)
     lineTo(esquerda + r, base)
-    quadraticBezierTo(esquerda, base, esquerda, base - r)
+    quadraticTo(esquerda, base, esquerda, base - r)
     lineTo(esquerda, topo + r)
-    quadraticBezierTo(esquerda, topo, esquerda + r, topo)
+    quadraticTo(esquerda, topo, esquerda + r, topo)
     close()
 }

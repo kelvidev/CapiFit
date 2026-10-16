@@ -1,24 +1,54 @@
 <resources>
-    <string name="app_name">FitVara</string>
+    <string name="app_name">CapiFIT</string>
+    <string name="app_marca">CapiFIT</string>
+    <string name="app_marca_inicial">C</string>
+    <string name="app_tagline">Seu companheiro de trilha</string>
 
-    <string name="login_titulo">FitVara</string>
-    <string name="login_subtitulo">Sua capivara treina junto.</string>
+    <string name="login_bem_vindo">Bem-vindo de volta!</string>
+    <string name="login_chamada">A trilha de hoje já está esperando por você</string>
     <string name="login_email">E-mail</string>
+    <string name="login_email_dica">voce@exemplo.com</string>
     <string name="login_senha">Senha</string>
+    <string name="login_senha_dica">••••••••</string>
     <string name="login_entrar">Entrar</string>
-    <string name="login_lembrar">Lembrar de mim</string>
-    <string name="login_esqueci">Esqueci a senha</string>
-    <string name="login_sem_conta">Primeira vez por aqui?</string>
-    <string name="login_criar_conta">Criar conta</string>
-    <string name="login_rodape">Treino leve, constância de capivara.</string>
+    <string name="login_ou">ou</string>
+    <string name="login_convidado">Continuar como convidado</string>
+    <string name="login_rodape">CapiFIT · trilha &amp; montanhismo</string>
 
     <string name="login_erro_email">Digite um e-mail válido</string>
     <string name="login_erro_senha">A senha precisa de ao menos 6 caracteres</string>
-    <string name="login_boas_vindas">Bora treinar! 🦫</string>
-    <string name="login_recuperar_enviado">Enviamos um link de recuperação por e-mail</string>
 
     <string name="login_mostrar_senha">Mostrar senha</string>
     <string name="login_ocultar_senha">Ocultar senha</string>
-    <string name="login_mascote">Mascote da FitVara, uma capivara de faixa de treino</string>
-    <string name="login_carregando">Entrando</string>
+    <string name="login_mascote">Mascote do CapiFIT, uma capivara de faixa de treino</string>
+
+    <string name="nav_inicio">Início</string>
+    <string name="nav_historico">Histórico</string>
+    <string name="nav_logar">Logar</string>
+    <string name="nav_perfil">Perfil</string>
+    <string name="nav_configuracoes">Configurações</string>
+    <string name="nav_nova_atividade">Nova atividade</string>
+
+    <string name="perfil_inicial">A</string>
+    <string name="perfil_trilhas">trilhas</string>
+    <string name="perfil_km">km</string>
+    <string name="perfil_recorde">km rec.</string>
+    <string name="perfil_conquistas">CONQUISTAS</string>
+    <string name="perfil_editar">✎  Editar perfil</string>
+    <string name="perfil_editar_acao">Editar</string>
+    <string name="perfil_editar_titulo">Editar perfil</string>
+    <string name="perfil_campo_nome">Nome</string>
+    <string name="perfil_campo_nome_dica">Como você quer aparecer</string>
+    <string name="perfil_campo_legenda">Legenda</string>
+    <string name="perfil_campo_legenda_dica">Ex.: Trilheira desde 2021</string>
+    <string name="perfil_excluir">×  Excluir conta</string>
+    <string name="perfil_excluir_acao">Excluir</string>
+    <string name="perfil_excluir_titulo">Excluir conta</string>
+    <string name="perfil_excluir_aviso">Isso encerra a sessão e leva você de volta ao login. Nada é apagado de verdade ainda.</string>
+
+    <string name="acao_salvar">Salvar</string>
+    <string name="acao_cancelar">Cancelar</string>
+
+    <string name="em_construcao_titulo">Tela em construção</string>
+    <string name="em_construcao_detalhe">Ela vem do desenho em app/assets/%1$s.</string>
 </resources>

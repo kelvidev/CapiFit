@@ -2,31 +2,27 @@ package com.fitvara.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Base clara e quente, tom de areia.
-val Creme = Color(0xFFFDFAF4)
-val CremeFundo = Color(0xFFF4EEE2)
-val Tinta = Color(0xFF3B3A34)
-val TintaSuave = Color(0xFF8A8678)
+// Paleta Trailside Pop, tirada de app/assets/00-estilos.svg.
+val Areia = Color(0xFFE7DCC4)
+val Creme = Color(0xFFF7F1E3)
+val Branco = Color(0xFFFFFFFF)
+val Duna = Color(0xFFEADFC7)
+val ChipCreme = Color(0xFFF4EEDD)
 
-// Verde do treino, bem lavado.
-val Mate = Color(0xFF8FB479)
-val MateEscuro = Color(0xFF557D3F)
-val MateProfundo = Color(0xFF2F4A22)
-val MateClaro = Color(0xFFE7F0DE)
+val Folha = Color(0xFF3E7C4F)
+val FolhaEscura = Color(0xFF2E603D)
+val Sol = Color(0xFFF2A93B)
+val Barro = Color(0xFFE0603C)
 
-// A capivara.
+val Tinta = Color(0xFF2A241C)
+val TintaSuave = Color(0xFF756E64)
+val TintaFantasma = Color(0xFF9A9287)
+val Borda = Color(0xFFD7CDB8)
+
+// A capivara: pelo, faixa de treino e detalhes do mascote.
 val CapivaraClara = Color(0xFFE3C09A)
 val Capivara = Color(0xFFC89A6B)
 val CapivaraPata = Color(0xFFB07F52)
 val CapivaraEscura = Color(0xFF9B6E42)
-
-// Acentos.
 val Coral = Color(0xFFF08E6B)
 val CoralClaro = Color(0xFFFBDACC)
-val Ceu = Color(0xFFCFE4E8)
-
-// Variantes para o tema escuro.
-val CremeNoite = Color(0xFF1E1D19)
-val CremeNoiteAlto = Color(0xFF2A2924)
-val TintaNoite = Color(0xFFEFEAE0)
-val MateNoite = Color(0xFFA9CE92)
