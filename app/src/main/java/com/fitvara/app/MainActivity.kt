@@ -14,10 +14,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import com.fitvara.app.ui.components.ItemBarra
+import com.fitvara.app.ui.atividade.NovaAtividadeScreen
 import com.fitvara.app.ui.components.Navegacao
-import com.fitvara.app.ui.components.TelaEmConstrucao
+import com.fitvara.app.ui.configuracoes.ConfiguracoesScreen
+import com.fitvara.app.ui.historico.HistoricoScreen
+import com.fitvara.app.ui.inicio.InicioScreen
 import com.fitvara.app.ui.login.LoginScreen
 import com.fitvara.app.ui.perfil.PerfilScreen
 import com.fitvara.app.ui.theme.FitvaraTheme
@@ -68,37 +69,27 @@ private fun CapiFit() {
             aoExcluirConta = { tela = Tela.Login },
         )
 
-        // As proximas da fila: cada uma entra no lugar do seu placeholder.
-        Tela.Inicio -> TelaEmConstrucao(
-            titulo = stringResource(R.string.nav_inicio),
-            arquivoDoDesenho = "02-inicio-progresso.svg",
+        Tela.Inicio -> InicioScreen(
             navegacao = navegacao,
-            item = ItemBarra.Nenhum,
             modifier = Modifier.fillMaxSize(),
         )
 
-        Tela.NovaAtividade -> TelaEmConstrucao(
-            titulo = stringResource(R.string.nav_nova_atividade),
-            arquivoDoDesenho = "03-nova-atividade.svg",
+        Tela.NovaAtividade -> NovaAtividadeScreen(
             navegacao = navegacao,
-            item = ItemBarra.Logar,
             modifier = Modifier.fillMaxSize(),
+            aoSalvar = { tela = Tela.Historico },
         )
 
-        Tela.Historico -> TelaEmConstrucao(
-            titulo = stringResource(R.string.nav_historico),
-            arquivoDoDesenho = "04-historico.svg",
+        Tela.Historico -> HistoricoScreen(
             navegacao = navegacao,
-            item = ItemBarra.Historico,
             modifier = Modifier.fillMaxSize(),
+            aoEditar = { tela = Tela.NovaAtividade },
         )
 
-        Tela.Configuracoes -> TelaEmConstrucao(
-            titulo = stringResource(R.string.nav_configuracoes),
-            arquivoDoDesenho = "06-configuracoes.svg",
+        Tela.Configuracoes -> ConfiguracoesScreen(
             navegacao = navegacao,
-            item = ItemBarra.Nenhum,
             modifier = Modifier.fillMaxSize(),
+            aoSair = { tela = Tela.Login },
         )
     }
 }

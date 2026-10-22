@@ -27,7 +27,6 @@
     <string name="nav_logar">Logar</string>
     <string name="nav_perfil">Perfil</string>
     <string name="nav_configuracoes">Configurações</string>
-    <string name="nav_nova_atividade">Nova atividade</string>
 
     <string name="perfil_inicial">A</string>
     <string name="perfil_trilhas">trilhas</string>
@@ -46,9 +45,75 @@
     <string name="perfil_excluir_titulo">Excluir conta</string>
     <string name="perfil_excluir_aviso">Isso encerra a sessão e leva você de volta ao login. Nada é apagado de verdade ainda.</string>
 
+    <string name="inicio_titulo">Seu progresso,</string>
+    <string name="inicio_periodo">Últimas 12 semanas</string>
+    <string name="inicio_todos_treinos">Todos os treinos</string>
+    <string name="inicio_tempo">Tempo</string>
+    <string name="inicio_distancia">Distância</string>
+    <string name="inicio_grafico">Gráfico de treinos das últimas 12 semanas</string>
+    <string name="inicio_sequencia">Sequência</string>
+    <string name="inicio_sequencia_unidade">dias seguidos</string>
+    <string name="inicio_desnivel">Desnível no mês</string>
+    <string name="inicio_desnivel_unidade">metros acumulados</string>
+
+    <string name="filtro_todos">Todos</string>
+    <string name="tipo_run">Run</string>
+    <string name="tipo_trail">Trail</string>
+    <string name="tipo_mountain">Mountain</string>
+
+    <string name="atividade_titulo">Nova atividade</string>
+    <string name="atividade_subtitulo">Registre como foi o treino de hoje</string>
+    <string name="atividade_nome">Nome da atividade</string>
+    <string name="atividade_nome_dica">Ex.: Trilha do Mirante</string>
+    <string name="atividade_tipo">Tipo de treino</string>
+    <string name="atividade_data">Data</string>
+    <string name="atividade_data_dica">01/10/2026</string>
+    <string name="atividade_duracao">Duração</string>
+    <string name="atividade_duracao_dica">2h 30min</string>
+    <string name="atividade_distancia">Distância (km)</string>
+    <string name="atividade_distancia_dica">5,1</string>
+    <string name="atividade_desnivel">Desnível (m)</string>
+    <string name="atividade_desnivel_dica">280</string>
+    <string name="atividade_dificuldade">Dificuldade</string>
+    <string name="atividade_notas">Notas</string>
+    <string name="atividade_notas_dica">Como foi a trilha?</string>
+    <string name="atividade_salvar">Salvar atividade</string>
+
+    <string name="historico_titulo">Histórico</string>
+    <string name="historico_editar">✎  Editar</string>
+    <string name="historico_excluir">×  Excluir</string>
+    <string name="historico_excluir_titulo">Excluir atividade</string>
+    <string name="historico_excluir_aviso">Excluir \"%1$s\" do histórico? Por enquanto nada é apagado de verdade.</string>
+    <string name="historico_excluir_acao">Excluir</string>
+
+    <string name="config_titulo">Configurações</string>
+    <string name="config_subtitulo">Ajuste o CapiFIT do seu jeito</string>
+    <string name="config_conta">CONTA</string>
+    <string name="config_seguranca">Segurança e login</string>
+    <string name="config_dados_conta">Editar dados da conta</string>
+    <string name="config_preferencias">PREFERÊNCIAS</string>
+    <string name="config_notificacoes">Notificações</string>
+    <string name="config_vibracao">Vibração ao registrar trilha</string>
+    <string name="config_tema">Tema</string>
+    <string name="config_unidades">Unidades de medida</string>
+    <string name="config_idioma">Idioma</string>
+    <string name="config_trilhas">TRILHAS</string>
+    <string name="config_gps">Registrar rota com GPS</string>
+    <string name="config_hidratacao">Lembrete de hidratação</string>
+    <string name="config_privacidade">PRIVACIDADE</string>
+    <string name="config_privacidade_dados">Privacidade dos dados</string>
+    <string name="config_exportar">Exportar minhas trilhas</string>
+    <string name="config_sobre">SOBRE</string>
+    <string name="config_ajuda">Ajuda e suporte</string>
+    <string name="config_termos">Termos de uso e privacidade</string>
+    <string name="config_versao">Versão do app</string>
+    <string name="config_sair">Sair da conta</string>
+    <string name="config_sair_acao">Sair</string>
+
+    <string name="dificuldade_facil">Fácil</string>
+    <string name="dificuldade_media">Média</string>
+    <string name="dificuldade_alta">Alta</string>
+
     <string name="acao_salvar">Salvar</string>
     <string name="acao_cancelar">Cancelar</string>
-
-    <string name="em_construcao_titulo">Tela em construção</string>
-    <string name="em_construcao_detalhe">Ela vem do desenho em app/assets/%1$s.</string>
 </resources>

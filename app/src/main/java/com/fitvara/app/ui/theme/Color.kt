@@ -14,6 +14,12 @@ val FolhaEscura = Color(0xFF2E603D)
 val Sol = Color(0xFFF2A93B)
 val Barro = Color(0xFFE0603C)
 
+// Tons que so aparecem em app/assets/04-historico.svg (fora de 00-estilos.svg):
+// selo "Facil" e fundos dos botoes Editar e Excluir.
+val SolEscuro = Color(0xFFBD741D)
+val FolhaClara = Color(0xFFDDEBDF)
+val BarroClaro = Color(0xFFF7DED7)
+
 val Tinta = Color(0xFF2A241C)
 val TintaSuave = Color(0xFF756E64)
 val TintaFantasma = Color(0xFF9A9287)

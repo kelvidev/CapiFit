@@ -42,6 +42,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.fitvara.app.R
 import com.fitvara.app.ui.theme.Borda
 import com.fitvara.app.ui.theme.Creme
@@ -118,9 +119,10 @@ fun CabecalhoTopo(
     ) {
         Column(Modifier.weight(1f)) {
             if (titulo != null) {
+                // Os cabecalhos de 02 a 06 usam 18, um ponto abaixo do titleLarge.
                 Text(
                     text = titulo,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp, lineHeight = 22.sp),
                     color = MaterialTheme.colorScheme.onBackground,
                 )
             }

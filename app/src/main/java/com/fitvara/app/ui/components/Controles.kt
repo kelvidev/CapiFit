@@ -2,6 +2,7 @@ package com.fitvara.app.ui.components
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
@@ -29,8 +30,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -45,10 +49,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -56,17 +63,24 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.fitvara.app.ui.theme.Borda
 import com.fitvara.app.ui.theme.Branco
+import com.fitvara.app.ui.theme.ChipCreme
+import com.fitvara.app.ui.theme.Creme
+import com.fitvara.app.ui.theme.Folha
 import com.fitvara.app.ui.theme.TintaFantasma
+import com.fitvara.app.ui.theme.TintaSuave
 
 /** Altura dos campos no design: app/assets/01-login.svg e 03-nova-atividade.svg. */
 private val AlturaCampo = 46.dp
+/** Altura do campo de notas em 03-nova-atividade.svg. */
+private val AlturaCampoMultilinha = 92.dp
 private val CantoCampo = RoundedCornerShape(16.dp)
 
 /**
  * Campo de texto do CapiFIT: rotulo acima, caixa branca de 46dp com borda fina.
  *
  * E montado sobre [BasicTextField] porque o `OutlinedTextField` do Material 3 tem
- * altura minima de 56dp e rotulo flutuante — os dois fogem do design.
+ * altura minima de 56dp e rotulo flutuante — os dois fogem do design. Com
+ * [multilinha], vira a caixa alta de notas: texto a partir do topo e quebra de linha.
  */
 @Composable
 fun CampoTexto(
@@ -81,6 +95,7 @@ fun CampoTexto(
     transformacao: VisualTransformation = VisualTransformation.None,
     aoConfirmar: () -> Unit = {},
     aoMudarFoco: (Boolean) -> Unit = {},
+    multilinha: Boolean = false,
     acessorio: @Composable (() -> Unit)? = null,
 ) {
     val interacoes = remember { MutableInteractionSource() }
@@ -105,17 +120,20 @@ fun CampoTexto(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(AlturaCampo)
+                .then(
+                    if (multilinha) Modifier.heightIn(min = AlturaCampoMultilinha) else Modifier.height(AlturaCampo),
+                )
                 .background(Branco, CantoCampo)
                 .border(1.dp, contorno, CantoCampo)
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
+                .padding(horizontal = 16.dp)
+                .then(if (multilinha) Modifier.padding(vertical = 14.dp) else Modifier),
+            verticalAlignment = if (multilinha) Alignment.Top else Alignment.CenterVertically,
         ) {
             BasicTextField(
                 value = valor,
                 onValueChange = aoMudar,
                 modifier = Modifier.weight(1f),
-                singleLine = true,
+                singleLine = !multilinha,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                 ),
@@ -125,7 +143,7 @@ fun CampoTexto(
                 keyboardOptions = KeyboardOptions(keyboardType = tipoTeclado, imeAction = acaoIme),
                 keyboardActions = KeyboardActions(onDone = { aoConfirmar() }),
                 decorationBox = { campo ->
-                    Box(contentAlignment = Alignment.CenterStart) {
+                    Box(contentAlignment = if (multilinha) Alignment.TopStart else Alignment.CenterStart) {
                         if (valor.isEmpty()) {
                             Text(
                                 text = dica,
@@ -207,6 +225,40 @@ fun BotaoPrincipal(
                 Text(text = texto, style = estilo)
             }
         }
+    }
+}
+
+/**
+ * Chip de 36dp com canto redondo: verde quando escolhido, creme quando nao. E o filtro
+ * de app/assets/02-inicio-progresso.svg e os seletores de 03-nova-atividade.svg.
+ */
+@Composable
+fun ChipFiltro(
+    texto: String,
+    selecionado: Boolean,
+    aoClicar: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val fundo by animateColorAsState(if (selecionado) Folha else ChipCreme, tween(180), label = "fundoChip")
+    val contorno by animateColorAsState(if (selecionado) Folha else Borda, tween(180), label = "contornoChip")
+    val corTexto by animateColorAsState(if (selecionado) Creme else TintaSuave, tween(180), label = "textoChip")
+
+    Box(
+        modifier = modifier
+            .height(36.dp)
+            .clip(CircleShape)
+            .background(fundo)
+            .border(1.dp, contorno, CircleShape)
+            .selectable(selected = selecionado, role = Role.RadioButton, onClick = aoClicar)
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = texto,
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+            color = corTexto,
+            maxLines = 1,
+        )
     }
 }
 
