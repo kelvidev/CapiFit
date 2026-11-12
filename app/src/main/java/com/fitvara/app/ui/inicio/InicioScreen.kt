@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -42,6 +43,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fitvara.app.R
+import com.fitvara.app.data.entidades.Atividade
+import com.fitvara.app.data.entidades.Dificuldade
+import com.fitvara.app.data.entidades.TipoAtividade
+import com.fitvara.app.ui.atividade.distanciaTexto
+import com.fitvara.app.ui.atividade.duracaoTexto
+import com.fitvara.app.ui.atividade.hojeIso
 import com.fitvara.app.ui.components.ChipFiltro
 import com.fitvara.app.ui.components.EsqueletoTela
 import com.fitvara.app.ui.components.ItemBarra
@@ -57,43 +64,45 @@ import com.fitvara.app.ui.theme.Folha
 import com.fitvara.app.ui.theme.Tinta
 import com.fitvara.app.ui.theme.TintaSuave
 
-// Textos e numeros fixos, copiados de app/assets/02-inicio-progresso.svg. Nada aqui
-// e calculado: os dados de verdade entram com a regra de negocio.
-private const val NOME = "Ana Souza"
-private const val ATIVIDADES = "8 atividades"
-private const val TEMPO = "23h 30min"
-private const val DISTANCIA = "52,0 km"
-private const val SEQUENCIA = "12"
-private const val DESNIVEL = "320"
-
-/** Altura de cada ponto do grafico acima da base, em dp, medida no SVG (base em y=440). */
-private val PontosDoGrafico = listOf(7, 20, 10, 52, 30, 90, 75, 110, 45, 128, 80, 148)
-
-/** Altura da area do grafico no desenho: do ponto mais alto (y=292) ate a base (y=440). */
 private val AlturaGrafico = 148.dp
 
-/** Meses do eixo e onde cada rotulo comeca (0 = inicio do grafico, 1 = fim). */
-private val Meses = listOf("JUL" to 0f, "AGO" to 0.33f, "SET" to 0.68f, "OUT" to 1f)
-
-/**
- * Tela de inicio, desenhada em app/assets/02-inicio-progresso.svg.
- *
- * So visual por enquanto: o chip tocado fica verde, mas os numeros e o grafico sao
- * os do desenho e nao mudam com o filtro.
- */
 @Composable
 fun InicioScreen(
+    nome: String,
+    atividades: List<Atividade>,
+    diasDeAcesso: List<String>,
     navegacao: Navegacao,
     modifier: Modifier = Modifier,
+    hoje: String = hojeIso(),
 ) {
     var chip by rememberSaveable { mutableIntStateOf(0) }
+
+    val doTipo = filtrarPorChip(atividades, chip)
+    val doPeriodo = atividadesDoPeriodo(doTipo, hoje)
+    val sequencia = sequenciaDeDias(diasDeAcesso, hoje)
+
+    val titulo = if (chip == 0) {
+        stringResource(R.string.inicio_todos_treinos)
+    } else {
+        stringResource(R.string.inicio_treinos_de, TipoAtividade.entries[chip - 1].name)
+    }
+    val selo = if (doPeriodo.size == 1) {
+        stringResource(R.string.inicio_uma_atividade)
+    } else {
+        stringResource(R.string.inicio_atividades, doPeriodo.size)
+    }
+    val unidadeSequencia = if (sequencia == 1) {
+        stringResource(R.string.inicio_sequencia_unidade_um)
+    } else {
+        stringResource(R.string.inicio_sequencia_unidade)
+    }
 
     EsqueletoTela(
         navegacao = navegacao,
         item = ItemBarra.Nenhum,
         modifier = modifier,
         titulo = stringResource(R.string.inicio_titulo),
-        subtitulo = NOME,
+        subtitulo = nome,
     ) {
         Spacer(Modifier.height(20.dp))
 
@@ -101,15 +110,22 @@ fun InicioScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        CartaoProgresso()
+        CartaoProgresso(
+            titulo = titulo,
+            selo = selo,
+            tempo = duracaoTexto(totalMinutos(doPeriodo)),
+            distancia = distanciaTexto(totalKm(doPeriodo)) + " km",
+            kmPorSemana = kmPorSemana(doPeriodo, hoje),
+            meses = mesesDoEixo(hoje),
+        )
 
         Spacer(Modifier.height(20.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             CartaoDestaque(
                 rotulo = stringResource(R.string.inicio_sequencia),
-                valor = SEQUENCIA,
-                unidade = stringResource(R.string.inicio_sequencia_unidade),
+                valor = sequencia.toString(),
+                unidade = unidadeSequencia,
                 fundo = Folha,
                 corValor = Creme,
                 corTexto = Creme,
@@ -117,7 +133,7 @@ fun InicioScreen(
             )
             CartaoDestaque(
                 rotulo = stringResource(R.string.inicio_desnivel),
-                valor = DESNIVEL,
+                valor = desnivelNoMes(doTipo, hoje).toString(),
                 unidade = stringResource(R.string.inicio_desnivel_unidade),
                 fundo = Duna,
                 corValor = Tinta,
@@ -128,7 +144,6 @@ fun InicioScreen(
     }
 }
 
-/** Os quatro chips do topo; rolam de lado se a fonte do aparelho for grande. */
 @Composable
 private fun Filtros(escolhido: Int, aoEscolher: (Int) -> Unit) {
     val nomes = listOf(
@@ -145,9 +160,9 @@ private fun Filtros(escolhido: Int, aoEscolher: (Int) -> Unit) {
             .selectableGroup(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        nomes.forEachIndexed { indice, nome ->
+        for (indice in nomes.indices) {
             ChipFiltro(
-                texto = nome,
+                texto = nomes[indice],
                 selecionado = indice == escolhido,
                 aoClicar = { aoEscolher(indice) },
             )
@@ -155,9 +170,15 @@ private fun Filtros(escolhido: Int, aoEscolher: (Int) -> Unit) {
     }
 }
 
-/** O cartao claro com periodo, totais e o grafico das ultimas 12 semanas. */
 @Composable
-private fun CartaoProgresso() {
+private fun CartaoProgresso(
+    titulo: String,
+    selo: String,
+    tempo: String,
+    distancia: String,
+    kmPorSemana: List<Double>,
+    meses: List<RotuloMes>,
+) {
     val canto = RoundedCornerShape(20.dp)
 
     Column(
@@ -177,7 +198,7 @@ private fun CartaoProgresso() {
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    text = stringResource(R.string.inicio_todos_treinos),
+                    text = titulo,
                     style = MaterialTheme.typography.headlineSmall.copy(fontSize = 21.sp, lineHeight = 26.sp),
                     color = Tinta,
                 )
@@ -185,28 +206,26 @@ private fun CartaoProgresso() {
 
             Spacer(Modifier.width(8.dp))
 
-            Selo(ATIVIDADES)
+            Selo(selo)
         }
 
         Spacer(Modifier.height(28.dp))
 
         Row {
-            Total(stringResource(R.string.inicio_tempo), TEMPO, Modifier.weight(1f))
-            Total(stringResource(R.string.inicio_distancia), DISTANCIA, Modifier.weight(1f))
+            Total(stringResource(R.string.inicio_tempo), tempo, Modifier.weight(1f))
+            Total(stringResource(R.string.inicio_distancia), distancia, Modifier.weight(1f))
         }
 
         Spacer(Modifier.height(34.dp))
 
-        // O grafico termina 32dp antes da borda direita, como no desenho.
         Column(Modifier.padding(end = 32.dp)) {
-            Grafico()
+            Grafico(kmPorSemana)
             Spacer(Modifier.height(22.dp))
-            EixoMeses()
+            EixoMeses(meses)
         }
     }
 }
 
-/** Contador no canto do cartao: mesmo visual do chip, mas sem clique. */
 @Composable
 private fun Selo(texto: String) {
     Box(
@@ -242,9 +261,8 @@ private fun Total(rotulo: String, valor: String, modifier: Modifier = Modifier) 
     }
 }
 
-/** Linha com area preenchida, tres guias e os pontos, nas medidas do desenho. */
 @Composable
-private fun Grafico() {
+private fun Grafico(kmPorSemana: List<Double>) {
     val descricao = stringResource(R.string.inicio_grafico)
 
     Canvas(
@@ -253,27 +271,41 @@ private fun Grafico() {
             .height(AlturaGrafico)
             .semantics { contentDescription = descricao },
     ) {
-        // As guias ficam em y=300, 370 e 440 no SVG: 8dp abaixo do topo, no meio e na base.
         val topo = 8.dp.toPx()
         val base = size.height
-        listOf(topo, (topo + base) / 2f, base).forEach { y ->
+        val guias = listOf(topo, (topo + base) / 2f, base)
+        for (y in guias) {
             drawLine(Borda, Offset(0f, y), Offset(size.width, y), 1.dp.toPx(), StrokeCap.Round)
         }
 
-        val passo = size.width / (PontosDoGrafico.size - 1)
-        val pontos = PontosDoGrafico.mapIndexed { indice, altura ->
-            Offset(indice * passo, base - altura.dp.toPx())
+        var maior = 0.0
+        for (km in kmPorSemana) {
+            if (km > maior) maior = km
         }
 
-        val linha = Path().apply {
-            pontos.forEachIndexed { indice, p -> if (indice == 0) moveTo(p.x, p.y) else lineTo(p.x, p.y) }
+        val passo = size.width / (kmPorSemana.size - 1)
+        val pontos = mutableListOf<Offset>()
+        for (semana in kmPorSemana.indices) {
+            val proporcao = if (maior > 0) kmPorSemana[semana] / maior else 0.0
+            val altura = (proporcao * AlturaGrafico.toPx()).toFloat()
+            pontos.add(Offset(semana * passo, base - altura))
         }
-        val area = Path().apply {
-            addPath(linha)
-            lineTo(pontos.last().x, base)
-            lineTo(pontos.first().x, base)
-            close()
+
+        val linha = Path()
+        for (indice in pontos.indices) {
+            val ponto = pontos[indice]
+            if (indice == 0) {
+                linha.moveTo(ponto.x, ponto.y)
+            } else {
+                linha.lineTo(ponto.x, ponto.y)
+            }
         }
+
+        val area = Path()
+        area.addPath(linha)
+        area.lineTo(pontos.last().x, base)
+        area.lineTo(pontos.first().x, base)
+        area.close()
 
         drawPath(area, Folha.copy(alpha = 0.12f))
         drawPath(
@@ -281,40 +313,51 @@ private fun Grafico() {
             Folha,
             style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
         )
-        pontos.forEach { p ->
-            drawCircle(Areia, radius = 3.dp.toPx(), center = p)
-            drawCircle(Folha, radius = 3.dp.toPx(), center = p, style = Stroke(2.dp.toPx()))
+        for (ponto in pontos) {
+            drawCircle(Areia, radius = 3.dp.toPx(), center = ponto)
+            drawCircle(Folha, radius = 3.dp.toPx(), center = ponto, style = Stroke(2.dp.toPx()))
         }
     }
 }
 
-/** Rotulos dos meses embaixo do grafico; o ultimo encosta na ponta direita. */
 @Composable
-private fun EixoMeses() {
+private fun EixoMeses(meses: List<RotuloMes>) {
     Layout(
         modifier = Modifier.fillMaxWidth(),
         content = {
-            Meses.forEach { (mes, _) ->
+            for (rotulo in meses) {
                 Text(
-                    text = mes,
+                    text = rotulo.nome,
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp, fontWeight = FontWeight.SemiBold),
                     color = TintaSuave,
                 )
             }
         },
     ) { medidas, limites ->
-        val rotulos = medidas.map { it.measure(limites.copy(minWidth = 0)) }
         val largura = limites.maxWidth
-        layout(largura, rotulos.maxOf { it.height }) {
-            rotulos.forEachIndexed { indice, rotulo ->
-                val x = (Meses[indice].second * largura).toInt()
-                rotulo.placeRelative(x.coerceAtMost(largura - rotulo.width), 0)
+        val rotulos = mutableListOf<Placeable>()
+        var altura = 0
+        for (medida in medidas) {
+            val rotulo = medida.measure(limites.copy(minWidth = 0))
+            rotulos.add(rotulo)
+            if (rotulo.height > altura) {
+                altura = rotulo.height
+            }
+        }
+
+        layout(largura, altura) {
+            for (indice in rotulos.indices) {
+                val rotulo = rotulos[indice]
+                var x = (meses[indice].semana * largura / (SEMANAS - 1).toFloat()).toInt()
+                if (x > largura - rotulo.width) {
+                    x = largura - rotulo.width
+                }
+                rotulo.placeRelative(x, 0)
             }
         }
     }
 }
 
-/** Cartao colorido de baixo: rotulo, numero grande e unidade. */
 @Composable
 private fun CartaoDestaque(
     rotulo: String,
@@ -359,6 +402,20 @@ private fun CartaoDestaque(
 @Composable
 private fun InicioPreview() {
     FitvaraTheme {
-        InicioScreen(navegacao = Navegacao())
+        InicioScreen(
+            nome = "Ana Souza",
+            atividades = ExemploParaPreview,
+            diasDeAcesso = listOf("2026-10-26", "2026-10-25"),
+            navegacao = Navegacao(),
+            hoje = "2026-10-26",
+        )
     }
 }
+
+private val ExemploParaPreview = listOf(
+    Atividade(1, "Trilha do Mirante", TipoAtividade.Trail, "2026-10-26", 150, 5.1, 280, Dificuldade.Media),
+    Atividade(2, "Caminho da Serra", TipoAtividade.Run, "2026-10-25", 75, 3.4, 120, Dificuldade.Facil),
+    Atividade(3, "Pico da Neblina", TipoAtividade.Mountain, "2026-10-12", 260, 8.7, 640, Dificuldade.Alta),
+    Atividade(4, "Trilha das Cachoeiras", TipoAtividade.Trail, "2026-09-18", 165, 6.8, 210, Dificuldade.Media),
+    Atividade(5, "Volta no Parque", TipoAtividade.Run, "2026-08-20", 40, 2.0, 0, Dificuldade.Facil),
+)

@@ -27,10 +27,6 @@ private val Cores = lightColorScheme(
     onError = Creme,
 )
 
-/**
- * O tema do CapiFIT. Só existe em claro: o design em app/assets/ nao tem versao
- * escura, e dynamic color sobrescreveria a paleta Trailside Pop.
- */
 @Composable
 fun FitvaraTheme(content: @Composable () -> Unit) {
     MaterialTheme(

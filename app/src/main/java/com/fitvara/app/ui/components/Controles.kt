@@ -20,12 +20,14 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -69,19 +71,11 @@ import com.fitvara.app.ui.theme.Folha
 import com.fitvara.app.ui.theme.TintaFantasma
 import com.fitvara.app.ui.theme.TintaSuave
 
-/** Altura dos campos no design: app/assets/01-login.svg e 03-nova-atividade.svg. */
 private val AlturaCampo = 46.dp
-/** Altura do campo de notas em 03-nova-atividade.svg. */
+
 private val AlturaCampoMultilinha = 92.dp
 private val CantoCampo = RoundedCornerShape(16.dp)
 
-/**
- * Campo de texto do CapiFIT: rotulo acima, caixa branca de 46dp com borda fina.
- *
- * E montado sobre [BasicTextField] porque o `OutlinedTextField` do Material 3 tem
- * altura minima de 56dp e rotulo flutuante — os dois fogem do design. Com
- * [multilinha], vira a caixa alta de notas: texto a partir do topo e quebra de linha.
- */
 @Composable
 fun CampoTexto(
     valor: String,
@@ -159,25 +153,67 @@ fun CampoTexto(
             acessorio?.invoke()
         }
 
-        AnimatedVisibility(
-            visible = erro != null,
-            enter = fadeIn(tween(180)) + expandVertically(tween(180)),
-            exit = fadeOut(tween(140)) + shrinkVertically(tween(140)),
-        ) {
-            Text(
-                text = erro.orEmpty(),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(start = 16.dp, top = 6.dp),
-            )
-        }
+        MensagemErro(erro)
     }
 }
 
-/**
- * Botao chapado de canto 16dp, como o "Entrar" e o "Salvar atividade" do design.
- * Afunda um pouco ao ser pressionado e troca o texto por pontinhos em [carregando].
- */
+@Composable
+fun CampoSelecao(
+    valor: String,
+    rotulo: String,
+    dica: String,
+    aoClicar: () -> Unit,
+    modifier: Modifier = Modifier,
+    erro: String? = null,
+) {
+    Column(modifier) {
+        Text(
+            text = rotulo,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        Spacer(Modifier.height(6.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(AlturaCampo)
+                .clip(CantoCampo)
+                .background(Branco)
+                .border(1.dp, if (erro != null) MaterialTheme.colorScheme.error else Borda, CantoCampo)
+                .clickable(onClickLabel = rotulo, role = Role.Button, onClick = aoClicar)
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            Text(
+                text = valor.ifEmpty { dica },
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (valor.isEmpty()) TintaFantasma else MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+            )
+        }
+
+        MensagemErro(erro)
+    }
+}
+
+@Composable
+private fun ColumnScope.MensagemErro(erro: String?) {
+    AnimatedVisibility(
+        visible = erro != null,
+        enter = fadeIn(tween(180)) + expandVertically(tween(180)),
+        exit = fadeOut(tween(140)) + shrinkVertically(tween(140)),
+    ) {
+        Text(
+            text = erro.orEmpty(),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(start = 16.dp, top = 6.dp),
+        )
+    }
+}
+
 @Composable
 fun BotaoPrincipal(
     texto: String,
@@ -228,10 +264,6 @@ fun BotaoPrincipal(
     }
 }
 
-/**
- * Chip de 36dp com canto redondo: verde quando escolhido, creme quando nao. E o filtro
- * de app/assets/02-inicio-progresso.svg e os seletores de 03-nova-atividade.svg.
- */
 @Composable
 fun ChipFiltro(
     texto: String,
@@ -262,7 +294,6 @@ fun ChipFiltro(
     }
 }
 
-/** Tres pontinhos quicando, no lugar do spinner padrao. */
 @Composable
 private fun PontosPulando(cor: Color) {
     val ciclo = rememberInfiniteTransition(label = "pontos")

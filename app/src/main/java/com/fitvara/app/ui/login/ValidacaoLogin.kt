@@ -1,14 +1,28 @@
 package com.fitvara.app.ui.login
 
-/** Minimo de caracteres aceito no campo de senha. */
 const val SENHA_MINIMA = 6
 
-private val FORMATO_EMAIL = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]{2,}$")
+fun emailValido(email: String): Boolean {
+    val texto = email.trim()
+    if (texto.contains(" ")) {
+        return false
+    }
 
-/**
- * Validacao de formato, so para dar retorno imediato no formulario. A regra de
- * verdade (conta existe, senha confere) vem com a autenticacao.
- */
-fun emailValido(email: String): Boolean = FORMATO_EMAIL.matches(email.trim())
+    val arroba = texto.indexOf("@")
+    if (arroba <= 0 || arroba != texto.lastIndexOf("@")) {
+        return false
+    }
 
-fun senhaValida(senha: String): Boolean = senha.length >= SENHA_MINIMA
+    val dominio = texto.substring(arroba + 1)
+    val ponto = dominio.lastIndexOf(".")
+    if (ponto <= 0) {
+        return false
+    }
+
+    val final = dominio.substring(ponto + 1)
+    return final.length >= 2
+}
+
+fun senhaValida(senha: String): Boolean {
+    return senha.length >= SENHA_MINIMA
+}

@@ -1,6 +1,5 @@
 package com.fitvara.app.ui.components
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,6 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,13 +30,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -52,29 +47,19 @@ import com.fitvara.app.ui.theme.FolhaEscura
 import com.fitvara.app.ui.theme.Sol
 import com.fitvara.app.ui.theme.TintaSuave
 
-/** Margem lateral das telas no design (app/assets/). */
 private val Margem = 20.dp
 
-/** Itens da barra inferior; [Nenhum] para telas que nao sao destino dela. */
 enum class ItemBarra { Nenhum, Historico, Logar, Perfil }
 
-/**
- * Os caminhos que o cabecalho e a barra inferior abrem. Enquanto a navegacao e so
- * troca de estado na MainActivity, passar os callbacks juntos evita repetir cinco
- * parametros em cada tela.
- */
 data class Navegacao(
     val aoInicio: () -> Unit = {},
     val aoHistorico: () -> Unit = {},
     val aoLogar: () -> Unit = {},
     val aoPerfil: () -> Unit = {},
     val aoConfiguracoes: () -> Unit = {},
+    val inicial: String = "A",
 )
 
-/**
- * Esqueleto comum das telas internas: fundo areia, cabecalho, conteudo rolavel e a
- * barra inferior fixa, nas medidas de app/assets/.
- */
 @Composable
 fun EsqueletoTela(
     navegacao: Navegacao,
@@ -105,7 +90,6 @@ fun EsqueletoTela(
     }
 }
 
-/** Titulo opcional a esquerda, casinha e botao "A" a direita. */
 @Composable
 fun CabecalhoTopo(
     navegacao: Navegacao,
@@ -119,7 +103,6 @@ fun CabecalhoTopo(
     ) {
         Column(Modifier.weight(1f)) {
             if (titulo != null) {
-                // Os cabecalhos de 02 a 06 usam 18, um ponto abaixo do titleLarge.
                 Text(
                     text = titulo,
                     style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp, lineHeight = 22.sp),
@@ -140,7 +123,12 @@ fun CabecalhoTopo(
             descricao = stringResource(R.string.nav_inicio),
             aoClicar = navegacao.aoInicio,
         ) {
-            Canvas(Modifier.size(18.dp)) { iconeCasinha(FolhaEscura) }
+            Icon(
+                painter = painterResource(R.drawable.ic_casinha),
+                contentDescription = null,
+                tint = FolhaEscura,
+                modifier = Modifier.size(18.dp),
+            )
         }
 
         Spacer(Modifier.width(8.dp))
@@ -151,7 +139,7 @@ fun CabecalhoTopo(
             aoClicar = navegacao.aoConfiguracoes,
         ) {
             Text(
-                text = stringResource(R.string.perfil_inicial),
+                text = navegacao.inicial,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onBackground,
             )
@@ -178,7 +166,6 @@ private fun BotaoCabecalho(
     )
 }
 
-/** Barra creme com o botao verde de registrar saltando por cima dela. */
 @Composable
 fun BarraNavegacao(
     navegacao: Navegacao,
@@ -206,7 +193,7 @@ fun BarraNavegacao(
                 selecionado = item == ItemBarra.Historico,
                 aoClicar = navegacao.aoHistorico,
                 modifier = Modifier.weight(1f),
-                icone = { cor -> Canvas(Modifier.size(20.dp)) { iconeRelogio(cor) } },
+                icone = R.drawable.ic_historico,
             )
 
             Spacer(Modifier.weight(1f))
@@ -216,7 +203,7 @@ fun BarraNavegacao(
                 selecionado = item == ItemBarra.Perfil,
                 aoClicar = navegacao.aoPerfil,
                 modifier = Modifier.weight(1f),
-                icone = { cor -> Canvas(Modifier.size(20.dp)) { iconePessoa(cor) } },
+                icone = R.drawable.ic_pessoa,
             )
         }
 
@@ -232,11 +219,12 @@ fun BarraNavegacao(
                     .clickable(onClick = navegacao.aoLogar),
                 contentAlignment = Alignment.Center,
             ) {
-                Canvas(Modifier.size(20.dp)) {
-                    val meio = size.width / 2f
-                    drawLine(Creme, Offset(0f, meio), Offset(size.width, meio), 3.dp.toPx(), StrokeCap.Round)
-                    drawLine(Creme, Offset(meio, 0f), Offset(meio, size.height), 3.dp.toPx(), StrokeCap.Round)
-                }
+                Icon(
+                    painter = painterResource(R.drawable.ic_mais),
+                    contentDescription = null,
+                    tint = Creme,
+                    modifier = Modifier.size(22.dp),
+                )
             }
 
             Spacer(Modifier.height(6.dp))
@@ -255,7 +243,7 @@ private fun ItemNavegacao(
     rotulo: String,
     selecionado: Boolean,
     aoClicar: () -> Unit,
-    icone: @Composable (Color) -> Unit,
+    icone: Int,
     modifier: Modifier = Modifier,
 ) {
     val cor = if (selecionado) FolhaEscura else TintaSuave
@@ -268,7 +256,12 @@ private fun ItemNavegacao(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        icone(cor)
+        Icon(
+            painter = painterResource(icone),
+            contentDescription = null,
+            tint = cor,
+            modifier = Modifier.size(20.dp),
+        )
         Text(
             text = rotulo,
             style = MaterialTheme.typography.labelSmall.copy(
@@ -277,64 +270,4 @@ private fun ItemNavegacao(
             color = cor,
         )
     }
-}
-
-// Os tres icones abaixo sao os tracos do desenho, redesenhados em Canvas para nao
-// depender da biblioteca estendida de icones.
-
-private fun DrawScope.iconeCasinha(cor: Color) {
-    val u = size.width / 16f
-    val traco = Stroke(width = 1.6f * u, cap = StrokeCap.Round, join = StrokeJoin.Round)
-
-    val casa = Path().apply {
-        moveTo(0f, 7f * u)
-        lineTo(8f * u, 0f)
-        lineTo(16f * u, 7f * u)
-        lineTo(16f * u, 16f * u)
-        lineTo(3f * u, 16f * u)
-        lineTo(3f * u, 7f * u)
-    }
-    val porta = Path().apply {
-        moveTo(6f * u, 16f * u)
-        lineTo(6f * u, 10f * u)
-        lineTo(11f * u, 10f * u)
-        lineTo(11f * u, 16f * u)
-    }
-
-    drawPath(casa, cor, style = traco)
-    drawPath(porta, cor, style = traco)
-}
-
-private fun DrawScope.iconeRelogio(cor: Color) {
-    val u = size.width / 20f
-    val traco = Stroke(width = 1.7f * u, cap = StrokeCap.Round, join = StrokeJoin.Round)
-
-    drawCircle(cor, radius = 8f * u, center = Offset(10f * u, 8f * u), style = traco)
-
-    val ponteiros = Path().apply {
-        moveTo(10f * u, 3f * u)
-        lineTo(10f * u, 8f * u)
-        lineTo(14f * u, 10f * u)
-    }
-    val volta = Path().apply {
-        moveTo(0f, 1f * u)
-        lineTo(0f, 7f * u)
-        lineTo(6f * u, 7f * u)
-    }
-
-    drawPath(ponteiros, cor, style = traco)
-    drawPath(volta, cor, style = traco)
-}
-
-private fun DrawScope.iconePessoa(cor: Color) {
-    val u = size.width / 20f
-    val traco = Stroke(width = 1.7f * u, cap = StrokeCap.Round, join = StrokeJoin.Round)
-
-    drawCircle(cor, radius = 4f * u, center = Offset(7f * u, 5f * u), style = traco)
-
-    val ombros = Path().apply {
-        moveTo(0f, 18f * u)
-        cubicTo(1f * u, 11f * u, 13f * u, 11f * u, 14f * u, 18f * u)
-    }
-    drawPath(ombros, cor, style = traco)
 }

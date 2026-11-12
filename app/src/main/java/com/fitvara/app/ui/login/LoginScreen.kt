@@ -1,9 +1,5 @@
 package com.fitvara.app.ui.login
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -39,13 +36,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -66,18 +60,11 @@ import com.fitvara.app.ui.theme.Sol
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/** Margem lateral das telas no design (app/assets/). */
 private val Margem = 20.dp
 
-/**
- * Tela de login, desenhada em app/assets/01-login.svg.
- *
- * [onEntrar] roda depois da validacao de formato; [onConvidado] entra direto.
- * Os dois levam para o perfil.
- */
 @Composable
 fun LoginScreen(
-    onEntrar: () -> Unit,
+    onEntrar: suspend (String, String) -> Boolean,
     onConvidado: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -97,6 +84,7 @@ fun LoginScreen(
 
     val msgErroEmail = stringResource(R.string.login_erro_email)
     val msgErroSenha = stringResource(R.string.login_erro_senha)
+    val msgSenhaIncorreta = stringResource(R.string.login_senha_incorreta)
 
     fun entrar() {
         erroEmail = if (emailValido(email)) null else msgErroEmail
@@ -108,9 +96,12 @@ fun LoginScreen(
         carregando = true
         festa++
         escopo.launch {
-            delay(700) // Aqui entra a autenticacao de verdade.
+            delay(700)
+            val entrou = onEntrar(email, senha)
             carregando = false
-            onEntrar()
+            if (!entrou) {
+                erroSenha = msgSenhaIncorreta
+            }
         }
     }
 
@@ -214,7 +205,7 @@ fun LoginScreen(
 
             BotaoPrincipal(
                 texto = stringResource(R.string.login_entrar),
-                aoClicar = ::entrar,
+                aoClicar = { entrar() },
                 carregando = carregando,
             )
 
@@ -238,7 +229,6 @@ fun LoginScreen(
     }
 }
 
-/** Quadradinho verde com o "C", nome do app e tagline. */
 @Composable
 private fun CabecalhoMarca(modifier: Modifier = Modifier) {
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
@@ -272,7 +262,6 @@ private fun CabecalhoMarca(modifier: Modifier = Modifier) {
     }
 }
 
-/** A capivara dentro do circulo Sol, como no desenho. */
 @Composable
 private fun MascoteNoCirculo(
     tapandoOlhos: Boolean,
@@ -298,7 +287,6 @@ private fun MascoteNoCirculo(
     }
 }
 
-/** linha —— ou —— linha */
 @Composable
 private fun DivisorOu() {
     Row(
@@ -316,48 +304,26 @@ private fun DivisorOu() {
     }
 }
 
-/** Olho desenhado a mao: evita puxar a biblioteca de icones estendida so por ele. */
 @Composable
 private fun IconeOlho(aberto: Boolean, cor: Color) {
-    val corte by animateFloatAsState(
-        targetValue = if (aberto) 0f else 1f,
-        animationSpec = tween(260, easing = FastOutSlowInEasing),
-        label = "corte",
-    )
-    val descricao = stringResource(
-        if (aberto) R.string.login_ocultar_senha else R.string.login_mostrar_senha,
-    )
-    Canvas(
-        Modifier
-            .size(20.dp)
-            .semantics { contentDescription = descricao },
-    ) {
-        val l = size.width
-        val a = size.height
-        val contorno = Path().apply {
-            moveTo(l * 0.08f, a * 0.5f)
-            quadraticTo(l * 0.5f, a * 0.1f, l * 0.92f, a * 0.5f)
-            quadraticTo(l * 0.5f, a * 0.9f, l * 0.08f, a * 0.5f)
-            close()
-        }
-        drawPath(contorno, cor, style = Stroke(width = l * 0.085f, cap = StrokeCap.Round))
-        drawCircle(cor, radius = l * 0.145f, center = Offset(l * 0.5f, a * 0.5f))
-        if (corte > 0.01f) {
-            drawLine(
-                color = cor,
-                start = Offset(l * 0.16f, a * 0.84f),
-                end = Offset(l * 0.16f + l * 0.68f * corte, a * 0.84f - a * 0.68f * corte),
-                strokeWidth = l * 0.095f,
-                cap = StrokeCap.Round,
-            )
-        }
+    var icone = R.drawable.ic_olho_cortado
+    var descricao = stringResource(R.string.login_mostrar_senha)
+    if (aberto) {
+        icone = R.drawable.ic_olho
+        descricao = stringResource(R.string.login_ocultar_senha)
     }
+    Icon(
+        painter = painterResource(icone),
+        contentDescription = descricao,
+        tint = cor,
+        modifier = Modifier.size(20.dp),
+    )
 }
 
 @Preview(widthDp = 390, heightDp = 844, showBackground = true)
 @Composable
 private fun LoginPreview() {
     FitvaraTheme {
-        LoginScreen(onEntrar = {}, onConvidado = {}, modifier = Modifier.fillMaxSize())
+        LoginScreen(onEntrar = { _, _ -> true }, onConvidado = {}, modifier = Modifier.fillMaxSize())
     }
 }

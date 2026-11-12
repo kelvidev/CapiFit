@@ -35,16 +35,8 @@ import com.fitvara.app.ui.theme.CoralClaro
 import com.fitvara.app.ui.theme.Folha
 import com.fitvara.app.ui.theme.Tinta
 
-/** A mascote e desenhada num espaco de 200x200 e escalada para o tamanho do Canvas. */
 private const val LADO = 200f
 
-/**
- * A capivara da Fitvara.
- *
- * Ela respira e balanca sozinha. [tapandoOlhos] faz ela cobrir os olhos com as
- * patinhas (usado quando o campo de senha esta em foco), [levantando] poe um
- * halter nas maos, e trocar [comemorarChave] dispara um pulinho.
- */
 @Composable
 fun CapivaraMascote(
     modifier: Modifier = Modifier,
@@ -66,7 +58,7 @@ fun CapivaraMascote(
         animationSpec = infiniteRepeatable(tween(2700, easing = FastOutSlowInEasing), RepeatMode.Reverse),
         label = "balanco",
     )
-    // 1 = olho aberto, ~0 = olho fechado. Fica aberto a maior parte do ciclo.
+
     val piscada by ciclo.animateFloat(
         initialValue = 1f,
         targetValue = 1f,
@@ -83,7 +75,6 @@ fun CapivaraMascote(
         label = "piscada",
     )
 
-    // Vai e volta das repeticoes enquanto ela esta levantando peso.
     val repeticao by ciclo.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
@@ -93,8 +84,7 @@ fun CapivaraMascote(
 
     val molaPata = spring<Float>(dampingRatio = 0.55f, stiffness = Spring.StiffnessLow)
     val pataY by animateFloatAsState(
-        // Levantar peso tem prioridade: se ela esta treinando, nao esta
-        // tapando os olhos, mesmo com o campo de senha ainda em foco.
+
         targetValue = when {
             levantando -> 176f
             tapandoOlhos -> 82f
@@ -143,7 +133,7 @@ fun CapivaraMascote(
             translate(left = sobra, top = 0f)
             scale(k, k, pivot = Offset.Zero)
             translate(left = 0f, top = balanco - 30f * pulo.value)
-            // Respira a partir das patas, nao do centro: parece peso no chao.
+
             scale(respiro, respiro, pivot = Offset(LADO / 2f, 192f))
         }) {
             desenharCapivara(
@@ -166,39 +156,31 @@ private fun DrawScope.desenharCapivara(
 ) {
     val meio = LADO / 2f
 
-    // Sombra no chao.
     drawOval(
         color = Tinta.copy(alpha = 0.08f),
         topLeft = Offset(meio - 56f, 184f),
         size = Size(112f, 16f),
     )
 
-    // Corpo: fica quase todo escondido atras da cabecona.
     drawRoundRectSimples(CapivaraClara, 52f, 148f, 148f, 192f, 28f)
 
-    // Orelhinhas: pequenas, nos cantos de cima. Desenhadas antes da cabeca,
-    // entao so a metade de fora aparece - e assim que elas ficam na capivara.
     for (lado in listOf(-1f, 1f)) {
         val cx = meio + lado * 42f
         drawCircle(CapivaraEscura, radius = 11f, center = Offset(cx, 38f))
         drawCircle(CoralClaro, radius = 5f, center = Offset(cx + lado * 2f, 39f))
     }
 
-    // Cabeca: COMPRIDA, nao redonda. A cara da capivara e um bloco alto que
-    // desce ate a narina - e esse alongamento que tira o ar de ursinho.
     val cabeca = caminhoArredondado(52f, 30f, 148f, 162f, 40f)
     drawPath(cabeca, Capivara)
 
-    // Faixa de treino, recortada no contorno da cabeca.
     clipPath(cabeca) {
         drawRect(Coral, topLeft = Offset(50f, 46f), size = Size(100f, 18f))
         drawRect(Color.White.copy(alpha = 0.22f), topLeft = Offset(50f, 46f), size = Size(100f, 6f))
     }
-    // No da faixa, do lado de fora.
+
     drawCircle(Coral, radius = 7.5f, center = Offset(147f, 60f))
     drawCircle(Coral, radius = 4f, center = Offset(155f, 54f))
 
-    // Olhos: pequenos, altos e bem afastados - olho de bicho semiaquatico.
     for (lado in listOf(-1f, 1f)) {
         val cx = meio + lado * 25f
         val alturaOlho = 14f * piscada
@@ -216,13 +198,10 @@ private fun DrawScope.desenharCapivara(
         }
     }
 
-    // Bochechas, baixas e discretas.
     for (lado in listOf(-1f, 1f)) {
         drawCircle(Coral.copy(alpha = 0.16f), radius = 10f, center = Offset(meio + lado * 36f, 104f))
     }
 
-    // Narina: um bloco escuro largo e achatado la na PONTA do focinho.
-    // E o tracinho mais reconhecivel da capivara.
     drawRoundRectSimples(CapivaraEscura, meio - 23f, 116f, meio + 23f, 134f, 8f)
     for (lado in listOf(-1f, 1f)) {
         drawOval(
@@ -232,7 +211,6 @@ private fun DrawScope.desenharCapivara(
         )
     }
 
-    // Filtro e boca, logo abaixo da narina.
     val boca = Path().apply {
         moveTo(meio, 136f)
         lineTo(meio, 142f)
@@ -242,10 +220,10 @@ private fun DrawScope.desenharCapivara(
         quadraticTo(meio + 7f, 149f, meio + 14f, 145f)
     }
     drawPath(boca, CapivaraEscura, style = Stroke(width = 3f, cap = StrokeCap.Round))
-    // Dentinhos de roedor.
+
     drawRoundRectSimples(Color.White, meio - 7f, 142f, meio - 1f, 150f, 2.5f)
     drawRoundRectSimples(Color.White, meio + 1f, 142f, meio + 7f, 150f, 2.5f)
-    // Pintinhas do bigode, dos lados da narina.
+
     for (lado in listOf(-1f, 1f)) {
         for (i in 0..2) {
             drawCircle(
@@ -256,7 +234,6 @@ private fun DrawScope.desenharCapivara(
         }
     }
 
-    // Halter, atras das patas.
     if (halter > 0.01f) {
         val y = pataY - 2f
         drawLine(
@@ -279,8 +256,6 @@ private fun DrawScope.desenharCapivara(
         }
     }
 
-    // Patinhas dianteiras: curtas e atarracadas. Tom proprio e contorno, senao
-    // somem contra a cabeca na hora de tapar os olhos.
     val raioPata = if (tapandoOlhos && halter < 0.5f) 16f else 13f
     for (lado in listOf(-1f, 1f)) {
         val cx = meio + lado * pataX
@@ -293,7 +268,7 @@ private fun DrawScope.desenharCapivara(
         )
         drawPath(pata, CapivaraPata)
         drawPath(pata, CapivaraEscura.copy(alpha = 0.45f), style = Stroke(width = 2.5f))
-        // Dedinhos: ajudam a leitura de "pata", inclusive por cima do rosto.
+
         for (i in -1..1) {
             drawCircle(
                 color = CapivaraEscura.copy(alpha = 0.35f),
@@ -304,7 +279,6 @@ private fun DrawScope.desenharCapivara(
     }
 }
 
-/** Retangulo arredondado desenhado por cantos, que e como as medidas acima foram pensadas. */
 private fun DrawScope.drawRoundRectSimples(
     cor: Color,
     esquerda: Float,

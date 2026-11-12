@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -30,16 +31,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.fitvara.app.R
+import com.fitvara.app.data.entidades.Atividade
+import com.fitvara.app.data.entidades.Dificuldade
+import com.fitvara.app.data.entidades.TipoAtividade
+import com.fitvara.app.ui.atividade.distanciaTexto
 import com.fitvara.app.ui.components.CampoTexto
-import com.fitvara.app.ui.components.CapivaraMascote
+import com.fitvara.app.ui.inicio.totalKm
 import com.fitvara.app.ui.components.EsqueletoTela
 import com.fitvara.app.ui.components.ItemBarra
 import com.fitvara.app.ui.components.Navegacao
@@ -51,39 +55,59 @@ import com.fitvara.app.ui.theme.FitvaraTheme
 import com.fitvara.app.ui.theme.Folha
 import com.fitvara.app.ui.theme.FolhaEscura
 import com.fitvara.app.ui.theme.Sol
+import com.fitvara.app.ui.theme.Tinta
 
 private val CantoCartao = RoundedCornerShape(16.dp)
 
-/** Numeros e conquistas de exemplo, iguais aos de app/assets/05-perfil.svg. */
-private const val TRILHAS = "48"
-private const val DISTANCIA = "312"
-private const val RECORDE = "9,4"
+private data class Conquista(val titulo: String, val detalhe: String, val cor: Color, val feita: Boolean)
 
-private data class Conquista(val titulo: String, val detalhe: String, val cor: Color)
-
-private val Conquistas = listOf(
-    Conquista("Primeira trilha registrada", "Concluída · 2,1 km", Sol),
-    Conquista("100 km acumulados", "312 km no total", Folha),
-    Conquista("5 trilhas em um mês", "48 trilhas registradas", Sol),
-)
-
-/**
- * Tela de perfil, desenhada em app/assets/05-perfil.svg.
- *
- * Nome e legenda vivem em estado da propria tela: editar muda o que aparece agora e
- * nada e gravado — a regra de negocio entra depois. [aoExcluirConta] e chamado
- * quando o usuario confirma a exclusao.
- */
 @Composable
 fun PerfilScreen(
+    nome: String,
+    legenda: String,
+    atividades: List<Atividade>,
     navegacao: Navegacao,
     modifier: Modifier = Modifier,
+    aoSalvarPerfil: (String, String) -> Unit = { _, _ -> },
     aoExcluirConta: () -> Unit = {},
 ) {
-    var nome by rememberSaveable { mutableStateOf("Ana Souza") }
-    var legenda by rememberSaveable { mutableStateOf("Trilheira desde 2021") }
     var editando by remember { mutableStateOf(false) }
     var confirmandoExclusao by remember { mutableStateOf(false) }
+
+    val km = totalKm(atividades)
+    val kmInteiro = Math.round(km).toString()
+    val primeira = primeiraAtividade(atividades)
+
+    var detalhePrimeira = stringResource(R.string.conquista_primeira_falta)
+    if (primeira != null) {
+        detalhePrimeira = stringResource(R.string.conquista_primeira_feita, distanciaTexto(primeira.distanciaKm))
+    }
+
+    var detalheMes = stringResource(R.string.conquista_5_no_mes_detalhe, atividades.size)
+    if (atividades.size == 1) {
+        detalheMes = stringResource(R.string.conquista_5_no_mes_detalhe_um)
+    }
+
+    val conquistas = listOf(
+        Conquista(
+            titulo = stringResource(R.string.conquista_primeira),
+            detalhe = detalhePrimeira,
+            cor = Sol,
+            feita = primeira != null,
+        ),
+        Conquista(
+            titulo = stringResource(R.string.conquista_100km),
+            detalhe = stringResource(R.string.conquista_100km_detalhe, kmInteiro),
+            cor = Folha,
+            feita = km >= 100,
+        ),
+        Conquista(
+            titulo = stringResource(R.string.conquista_5_no_mes),
+            detalhe = detalheMes,
+            cor = Sol,
+            feita = maiorQuantidadeNoMes(atividades) >= 5,
+        ),
+    )
 
     EsqueletoTela(navegacao = navegacao, item = ItemBarra.Perfil, modifier = modifier) {
         Spacer(Modifier.height(22.dp))
@@ -110,9 +134,9 @@ fun PerfilScreen(
         Spacer(Modifier.height(26.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            CartaoNumero(TRILHAS, stringResource(R.string.perfil_trilhas), Modifier.weight(1f))
-            CartaoNumero(DISTANCIA, stringResource(R.string.perfil_km), Modifier.weight(1f))
-            CartaoNumero(RECORDE, stringResource(R.string.perfil_recorde), Modifier.weight(1f))
+            CartaoNumero(atividades.size.toString(), stringResource(R.string.perfil_trilhas), Modifier.weight(1f))
+            CartaoNumero(kmInteiro, stringResource(R.string.perfil_km), Modifier.weight(1f))
+            CartaoNumero(distanciaTexto(recordeKm(atividades)), stringResource(R.string.perfil_recorde), Modifier.weight(1f))
         }
 
         Spacer(Modifier.height(26.dp))
@@ -126,7 +150,7 @@ fun PerfilScreen(
 
         Spacer(Modifier.height(10.dp))
 
-        Conquistas.forEach { conquista ->
+        for (conquista in conquistas) {
             LinhaConquista(conquista)
             Spacer(Modifier.height(10.dp))
         }
@@ -134,6 +158,7 @@ fun PerfilScreen(
         Spacer(Modifier.height(16.dp))
 
         LinhaAcao(
+            icone = R.drawable.ic_lapis,
             texto = stringResource(R.string.perfil_editar),
             acao = stringResource(R.string.perfil_editar_acao),
             corAcao = FolhaEscura,
@@ -143,6 +168,7 @@ fun PerfilScreen(
         Spacer(Modifier.height(10.dp))
 
         LinhaAcao(
+            icone = R.drawable.ic_xis,
             texto = stringResource(R.string.perfil_excluir),
             acao = stringResource(R.string.perfil_excluir_acao),
             corAcao = Barro,
@@ -156,8 +182,7 @@ fun PerfilScreen(
             legenda = legenda,
             aoFechar = { editando = false },
             aoSalvar = { novoNome, novaLegenda ->
-                nome = novoNome
-                legenda = novaLegenda
+                aoSalvarPerfil(novoNome, novaLegenda)
                 editando = false
             },
         )
@@ -183,10 +208,8 @@ fun PerfilScreen(
     }
 }
 
-/** A capivara no circulo laranja, como no desenho. */
 @Composable
 private fun ColumnScope.Avatar() {
-    val descricao = stringResource(R.string.login_mascote)
     Box(
         modifier = Modifier
             .align(Alignment.CenterHorizontally)
@@ -195,15 +218,15 @@ private fun ColumnScope.Avatar() {
             .background(Sol),
         contentAlignment = Alignment.Center,
     ) {
-        CapivaraMascote(
-            modifier = Modifier
-                .size(88.dp)
-                .semantics { contentDescription = descricao },
+        Icon(
+            painter = painterResource(R.drawable.capivara_avatar),
+            contentDescription = stringResource(R.string.login_mascote),
+            tint = Tinta,
+            modifier = Modifier.size(76.dp),
         )
     }
 }
 
-/** Cartao claro com um numero grande e a unidade embaixo. */
 @Composable
 private fun CartaoNumero(valor: String, rotulo: String, modifier: Modifier = Modifier) {
     Column(
@@ -243,13 +266,14 @@ private fun LinhaConquista(conquista: Conquista) {
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
-                .background(conquista.cor),
+                .background(if (conquista.feita) conquista.cor else Borda),
             contentAlignment = Alignment.Center,
         ) {
-            Text(
-                text = "★",
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                color = Creme,
+            Icon(
+                painter = painterResource(R.drawable.ic_estrela),
+                contentDescription = null,
+                tint = Creme,
+                modifier = Modifier.size(18.dp),
             )
         }
 
@@ -270,9 +294,9 @@ private fun LinhaConquista(conquista: Conquista) {
     }
 }
 
-/** Linha clicavel com o rotulo da acao na ponta direita. */
 @Composable
 private fun LinhaAcao(
+    icone: Int,
     texto: String,
     acao: String,
     corAcao: Color,
@@ -289,6 +313,13 @@ private fun LinhaAcao(
             .padding(horizontal = 18.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        Icon(
+            painter = painterResource(icone),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.size(16.dp),
+        )
+        Spacer(Modifier.width(10.dp))
         Text(
             text = texto,
             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
@@ -303,7 +334,6 @@ private fun LinhaAcao(
     }
 }
 
-/** Edicao do que aparece no topo da tela. Ainda sem gravar nada. */
 @Composable
 private fun DialogoEditar(
     nome: String,
@@ -355,6 +385,14 @@ private fun DialogoEditar(
 @Composable
 private fun PerfilPreview() {
     FitvaraTheme {
-        PerfilScreen(navegacao = Navegacao())
+        PerfilScreen(
+            nome = "Ana Souza",
+            legenda = "Trilheira desde 2021",
+            atividades = listOf(
+                Atividade(1, "Trilha do Mirante", TipoAtividade.Trail, "2026-10-26", 150, 5.1, 280, Dificuldade.Media),
+                Atividade(2, "Pico da Neblina", TipoAtividade.Mountain, "2026-10-12", 260, 9.4, 640, Dificuldade.Alta),
+            ),
+            navegacao = Navegacao(),
+        )
     }
 }

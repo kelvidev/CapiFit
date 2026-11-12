@@ -2,33 +2,52 @@ package com.fitvara.app
 
 import android.graphics.Color
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.fitvara.app.data.banco.BancoCapiFit
+import com.fitvara.app.data.banco.criarContasIniciais
+import com.fitvara.app.data.banco.entrar
+import com.fitvara.app.data.banco.entrarComoConvidado
+import com.fitvara.app.data.banco.excluirConta
+import com.fitvara.app.data.entidades.Atividade
 import com.fitvara.app.ui.atividade.NovaAtividadeScreen
+import com.fitvara.app.ui.atividade.hojeIso
 import com.fitvara.app.ui.components.Navegacao
 import com.fitvara.app.ui.configuracoes.ConfiguracoesScreen
+import com.fitvara.app.ui.historico.DetalheAtividadeScreen
 import com.fitvara.app.ui.historico.HistoricoScreen
 import com.fitvara.app.ui.inicio.InicioScreen
 import com.fitvara.app.ui.login.LoginScreen
 import com.fitvara.app.ui.perfil.PerfilScreen
+import com.fitvara.app.ui.sobre.SobreScreen
 import com.fitvara.app.ui.theme.FitvaraTheme
+import kotlinx.coroutines.launch
 
-/** As telas do app. A navegacao e so troca de estado — ainda nao vale uma lib. */
-private enum class Tela { Login, Inicio, NovaAtividade, Historico, Perfil, Configuracoes }
+private enum class Tela { Login, Inicio, NovaAtividade, Historico, Detalhe, Perfil, Configuracoes, Sobre }
 
 class MainActivity : ComponentActivity() {
+
+    private val banco by lazy { BancoCapiFit.abrir(applicationContext) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        // O app e claro em qualquer aparelho, entao os icones das barras ficam escuros.
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.BLACK),
             navigationBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.BLACK),
@@ -36,60 +55,235 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             FitvaraTheme {
-                CapiFit()
+                CapiFit(banco)
             }
         }
+    }
+
+    override fun onDestroy() {
+        banco.close()
+        super.onDestroy()
     }
 }
 
 @Composable
-private fun CapiFit() {
+private fun CapiFit(banco: BancoCapiFit) {
     var tela by rememberSaveable { mutableStateOf(Tela.Login) }
+    var usuarioId by rememberSaveable { mutableLongStateOf(0L) }
+    var editandoId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var detalheId by rememberSaveable { mutableLongStateOf(0L) }
+    val escopo = rememberCoroutineScope()
+    val contexto = LocalContext.current
 
-    val navegacao = remember {
-        Navegacao(
-            aoInicio = { tela = Tela.Inicio },
-            aoHistorico = { tela = Tela.Historico },
-            aoLogar = { tela = Tela.NovaAtividade },
-            aoPerfil = { tela = Tela.Perfil },
-            aoConfiguracoes = { tela = Tela.Configuracoes },
-        )
+    LaunchedEffect(Unit) {
+        criarContasIniciais(banco)
     }
+
+    val usuarioBanco = remember(usuarioId) { banco.usuarioDao().buscar(usuarioId) }
+    val atividadesBanco = remember(usuarioId) { banco.atividadeDao().listar(usuarioId) }
+    val diasBanco = remember(usuarioId) { banco.acessoDao().listarDias(usuarioId) }
+
+    val usuario by usuarioBanco.collectAsState(initial = null)
+    val atividades by atividadesBanco.collectAsState(initial = emptyList())
+    val diasDeAcesso by diasBanco.collectAsState(initial = emptyList())
+
+    val nome = usuario?.nome ?: ""
+    val legenda = usuario?.legenda ?: ""
+    var inicial = "A"
+    if (nome.isNotEmpty()) {
+        inicial = nome.substring(0, 1).uppercase()
+    }
+
+    fun ir(destino: Tela) {
+        editandoId = null
+        tela = destino
+    }
+
+    fun sair() {
+        usuarioId = 0L
+        ir(Tela.Login)
+    }
+
+    fun avisar(mensagem: Int) {
+        Toast.makeText(contexto, mensagem, Toast.LENGTH_SHORT).show()
+    }
+
+    fun voltar() {
+        when (tela) {
+            Tela.Detalhe -> ir(Tela.Historico)
+            Tela.Sobre -> ir(Tela.Configuracoes)
+            Tela.NovaAtividade -> {
+                if (editandoId != null) {
+                    ir(Tela.Historico)
+                } else {
+                    ir(Tela.Inicio)
+                }
+            }
+            else -> ir(Tela.Inicio)
+        }
+    }
+
+    fun abrirDetalhe(atividade: Atividade) {
+        detalheId = atividade.id
+        ir(Tela.Detalhe)
+    }
+
+    fun editar(atividade: Atividade) {
+        ir(Tela.NovaAtividade)
+        editandoId = atividade.id
+    }
+
+    fun favoritar(atividade: Atividade) {
+        escopo.launch {
+            banco.atividadeDao().atualizar(atividade.copy(favorita = !atividade.favorita))
+        }
+    }
+
+    fun excluir(atividade: Atividade) {
+        escopo.launch {
+            banco.atividadeDao().excluir(atividade.id)
+            avisar(R.string.atividade_excluida)
+        }
+    }
+
+    BackHandler(enabled = tela != Tela.Login && tela != Tela.Inicio) {
+        voltar()
+    }
+
+    val navegacao = Navegacao(
+        aoInicio = { ir(Tela.Inicio) },
+        aoHistorico = { ir(Tela.Historico) },
+        aoLogar = { ir(Tela.NovaAtividade) },
+        aoPerfil = { ir(Tela.Perfil) },
+        aoConfiguracoes = { ir(Tela.Configuracoes) },
+        inicial = inicial,
+    )
 
     when (tela) {
         Tela.Login -> LoginScreen(
-            onEntrar = { tela = Tela.Perfil },
-            onConvidado = { tela = Tela.Perfil },
+            onEntrar = { email, senha ->
+                val id = entrar(banco, email, senha, hojeIso())
+                if (id != null) {
+                    usuarioId = id
+                    ir(Tela.Inicio)
+                }
+                id != null
+            },
+            onConvidado = {
+                escopo.launch {
+                    usuarioId = entrarComoConvidado(banco, hojeIso())
+                    ir(Tela.Inicio)
+                }
+            },
             modifier = Modifier.fillMaxSize(),
-        )
-
-        Tela.Perfil -> PerfilScreen(
-            navegacao = navegacao,
-            modifier = Modifier.fillMaxSize(),
-            aoExcluirConta = { tela = Tela.Login },
         )
 
         Tela.Inicio -> InicioScreen(
+            nome = nome,
+            atividades = atividades,
+            diasDeAcesso = diasDeAcesso,
             navegacao = navegacao,
             modifier = Modifier.fillMaxSize(),
         )
 
-        Tela.NovaAtividade -> NovaAtividadeScreen(
-            navegacao = navegacao,
-            modifier = Modifier.fillMaxSize(),
-            aoSalvar = { tela = Tela.Historico },
-        )
+        Tela.NovaAtividade -> {
+            var inicial: Atividade? = null
+            var eraFavorita = false
+            for (atividade in atividades) {
+                if (atividade.id == editandoId) {
+                    inicial = atividade
+                    eraFavorita = atividade.favorita
+                }
+            }
+
+            key(editandoId) {
+                NovaAtividadeScreen(
+                    navegacao = navegacao,
+                    modifier = Modifier.fillMaxSize(),
+                    inicial = inicial,
+                    aoSalvar = { atividade ->
+                        escopo.launch {
+                            val comDono = atividade.copy(usuarioId = usuarioId, favorita = eraFavorita)
+                            if (comDono.id == 0L) {
+                                banco.atividadeDao().inserir(comDono)
+                                avisar(R.string.atividade_salva)
+                            } else {
+                                banco.atividadeDao().atualizar(comDono)
+                                avisar(R.string.atividade_atualizada)
+                            }
+                            ir(Tela.Historico)
+                        }
+                    },
+                )
+            }
+        }
 
         Tela.Historico -> HistoricoScreen(
+            atividades = atividades,
             navegacao = navegacao,
             modifier = Modifier.fillMaxSize(),
-            aoEditar = { tela = Tela.NovaAtividade },
+            aoAbrir = { atividade -> abrirDetalhe(atividade) },
+            aoFavoritar = { atividade -> favoritar(atividade) },
+            aoEditar = { atividade -> editar(atividade) },
+            aoExcluir = { atividade -> excluir(atividade) },
+        )
+
+        Tela.Detalhe -> {
+            var aberta: Atividade? = null
+            for (atividade in atividades) {
+                if (atividade.id == detalheId) {
+                    aberta = atividade
+                }
+            }
+
+            if (aberta != null) {
+                val atividade = aberta
+                DetalheAtividadeScreen(
+                    atividade = atividade,
+                    navegacao = navegacao,
+                    modifier = Modifier.fillMaxSize(),
+                    aoFavoritar = { favoritar(atividade) },
+                    aoEditar = { editar(atividade) },
+                    aoExcluir = {
+                        excluir(atividade)
+                        ir(Tela.Historico)
+                    },
+                )
+            }
+        }
+
+        Tela.Perfil -> PerfilScreen(
+            nome = nome,
+            legenda = legenda,
+            atividades = atividades,
+            navegacao = navegacao,
+            modifier = Modifier.fillMaxSize(),
+            aoSalvarPerfil = { novoNome, novaLegenda ->
+                val atual = usuario
+                if (atual != null) {
+                    escopo.launch {
+                        banco.usuarioDao().atualizar(atual.copy(nome = novoNome, legenda = novaLegenda))
+                    }
+                }
+            },
+            aoExcluirConta = {
+                escopo.launch {
+                    excluirConta(banco, usuarioId)
+                    sair()
+                }
+            },
         )
 
         Tela.Configuracoes -> ConfiguracoesScreen(
             navegacao = navegacao,
             modifier = Modifier.fillMaxSize(),
-            aoSair = { tela = Tela.Login },
+            aoAbrirSobre = { ir(Tela.Sobre) },
+            aoSair = { sair() },
+        )
+
+        Tela.Sobre -> SobreScreen(
+            navegacao = navegacao,
+            modifier = Modifier.fillMaxSize(),
         )
     }
 }
