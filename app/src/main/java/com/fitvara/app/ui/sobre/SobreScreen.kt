@@ -118,24 +118,6 @@ fun SobreScreen(
                 )
             }
         }
-
-        Spacer(Modifier.height(10.dp))
-
-        Cartao {
-            Rotulo(stringResource(R.string.sobre_creditos))
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.sobre_creditos_icones),
-                style = MaterialTheme.typography.bodyMedium,
-                color = Tinta,
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.sobre_creditos_capivara),
-                style = MaterialTheme.typography.bodyMedium,
-                color = Tinta,
-            )
-        }
     }
 }
 

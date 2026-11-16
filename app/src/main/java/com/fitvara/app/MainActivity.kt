@@ -42,6 +42,7 @@ import com.fitvara.app.ui.theme.FitvaraTheme
 import kotlinx.coroutines.launch
 
 private enum class Tela { Login, Inicio, NovaAtividade, Historico, Detalhe, Perfil, Configuracoes, Sobre }
+private const val LIMITE_FAVORITAS = 3
 
 class MainActivity : ComponentActivity() {
 
@@ -104,8 +105,8 @@ private fun CapiFit(banco: BancoCapiFit) {
         ir(Tela.Login)
     }
 
-    fun avisar(mensagem: Int) {
-        Toast.makeText(contexto, mensagem, Toast.LENGTH_SHORT).show()
+    fun avisar(mensagem: Int, vararg valores: Any) {
+        Toast.makeText(contexto, contexto.getString(mensagem, *valores), Toast.LENGTH_SHORT).show()
     }
 
     fun voltar() {
@@ -135,7 +136,21 @@ private fun CapiFit(banco: BancoCapiFit) {
 
     fun favoritar(atividade: Atividade) {
         escopo.launch {
-            banco.atividadeDao().atualizar(atividade.copy(favorita = !atividade.favorita))
+            val total = banco.atividadeDao().contarFavoritas(usuarioId)
+
+            if(atividade.favorita){
+                banco.atividadeDao().atualizar(atividade.copy(favorita = false))
+                avisar(R.string.atividade_desfavoritada)
+                return@launch
+            }
+
+            if (total < LIMITE_FAVORITAS) {
+                banco.atividadeDao().atualizar(atividade.copy(favorita = true))
+                avisar(R.string.atividade_favoritada, total + 1, LIMITE_FAVORITAS)
+                return@launch
+            }
+
+            avisar(R.string.favoritas_limite, LIMITE_FAVORITAS)
         }
     }
 
@@ -258,6 +273,13 @@ private fun CapiFit(banco: BancoCapiFit) {
             atividades = atividades,
             navegacao = navegacao,
             modifier = Modifier.fillMaxSize(),
+        )
+
+        Tela.Configuracoes -> ConfiguracoesScreen(
+            navegacao = navegacao,
+            modifier = Modifier.fillMaxSize(),
+            aoAbrirSobre = { ir(Tela.Sobre) },
+            aoSair = { sair() },
             aoSalvarPerfil = { novoNome, novaLegenda ->
                 val atual = usuario
                 if (atual != null) {
@@ -272,13 +294,8 @@ private fun CapiFit(banco: BancoCapiFit) {
                     sair()
                 }
             },
-        )
-
-        Tela.Configuracoes -> ConfiguracoesScreen(
-            navegacao = navegacao,
-            modifier = Modifier.fillMaxSize(),
-            aoAbrirSobre = { ir(Tela.Sobre) },
-            aoSair = { sair() },
+            nome = nome,
+            legenda = legenda,
         )
 
         Tela.Sobre -> SobreScreen(

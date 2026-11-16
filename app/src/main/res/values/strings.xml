@@ -42,7 +42,6 @@
     <string name="conquista_5_no_mes_detalhe_um">1 trilha registrada</string>
     <string name="perfil_conquistas">CONQUISTAS</string>
     <string name="perfil_editar">Editar perfil</string>
-    <string name="perfil_editar_acao">Editar</string>
     <string name="perfil_editar_titulo">Editar perfil</string>
     <string name="perfil_campo_nome">Nome</string>
     <string name="perfil_campo_nome_dica">Como você quer aparecer</string>
@@ -118,13 +117,7 @@
     <string name="config_titulo">Configurações</string>
     <string name="config_subtitulo">Ajuste o CapiFIT do seu jeito</string>
     <string name="config_conta">CONTA</string>
-    <string name="config_dados_conta">Editar dados da conta</string>
     <string name="config_sobre">SOBRE</string>
-    <string name="config_ajuda">Ajuda e suporte</string>
-    <string name="config_termos">Termos de uso e privacidade</string>
-    <string name="config_versao">Versão do app</string>
-    <string name="config_creditos">Créditos</string>
-    <string name="config_creditos_valor">Uicons by Flaticon · game-icons.net</string>
     <string name="config_sair">Sair da conta</string>
     <string name="config_sair_acao">Sair</string>
 
@@ -136,6 +129,11 @@
     <string name="acao_cancelar">Cancelar</string>
     <string name="acao_ok">OK</string>
     <string name="atividade_excluida">Atividade excluída</string>
+    <!-- marcações de inteiros para adicionar aos favoritos e mostrar quantos favoritos ainda estão disponíveis para marcar -->
+    <string name="atividade_favoritada">Adicionada aos favoritos %1$d/%2$d</string>
+    <string name="atividade_desfavoritada">Removida dos favoritos</string>
+    <!-- marcações de inteiros para mostrar o limite de favoritas -->
+    <string name="favoritas_limite">A lista de favoritos atingiu o limite de %1$d!</string>
     <string name="favorito_marcar">Favoritar</string>
     <string name="favorito_desmarcar">Remover dos favoritos</string>
     <string name="favorito_marcada">Favorita</string>
@@ -152,7 +150,4 @@
     <string name="sobre_disciplina">Disciplina</string>
     <string name="sobre_disciplina_nome">Desenvolvimento de Aplicativos Móveis</string>
     <string name="sobre_equipe">Equipe</string>
-    <string name="sobre_creditos">Créditos</string>
-    <string name="sobre_creditos_icones">Ícones: Uicons by Flaticon</string>
-    <string name="sobre_creditos_capivara">Capivara do perfil: Caro Asercion, game-icons.net (CC BY 3.0)</string>
 </resources>

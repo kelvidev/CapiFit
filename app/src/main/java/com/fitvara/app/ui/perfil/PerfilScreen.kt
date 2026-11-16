@@ -68,12 +68,7 @@ fun PerfilScreen(
     atividades: List<Atividade>,
     navegacao: Navegacao,
     modifier: Modifier = Modifier,
-    aoSalvarPerfil: (String, String) -> Unit = { _, _ -> },
-    aoExcluirConta: () -> Unit = {},
 ) {
-    var editando by remember { mutableStateOf(false) }
-    var confirmandoExclusao by remember { mutableStateOf(false) }
-
     val km = totalKm(atividades)
     val kmInteiro = Math.round(km).toString()
     val primeira = primeiraAtividade(atividades)
@@ -156,55 +151,6 @@ fun PerfilScreen(
         }
 
         Spacer(Modifier.height(16.dp))
-
-        LinhaAcao(
-            icone = R.drawable.ic_lapis,
-            texto = stringResource(R.string.perfil_editar),
-            acao = stringResource(R.string.perfil_editar_acao),
-            corAcao = FolhaEscura,
-            aoClicar = { editando = true },
-        )
-
-        Spacer(Modifier.height(10.dp))
-
-        LinhaAcao(
-            icone = R.drawable.ic_xis,
-            texto = stringResource(R.string.perfil_excluir),
-            acao = stringResource(R.string.perfil_excluir_acao),
-            corAcao = Barro,
-            aoClicar = { confirmandoExclusao = true },
-        )
-    }
-
-    if (editando) {
-        DialogoEditar(
-            nome = nome,
-            legenda = legenda,
-            aoFechar = { editando = false },
-            aoSalvar = { novoNome, novaLegenda ->
-                aoSalvarPerfil(novoNome, novaLegenda)
-                editando = false
-            },
-        )
-    }
-
-    if (confirmandoExclusao) {
-        AlertDialog(
-            onDismissRequest = { confirmandoExclusao = false },
-            containerColor = Creme,
-            title = { Text(stringResource(R.string.perfil_excluir_titulo)) },
-            text = { Text(stringResource(R.string.perfil_excluir_aviso)) },
-            confirmButton = {
-                TextButton(onClick = { confirmandoExclusao = false; aoExcluirConta() }) {
-                    Text(stringResource(R.string.perfil_excluir_acao), color = Barro)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirmandoExclusao = false }) {
-                    Text(stringResource(R.string.acao_cancelar))
-                }
-            },
-        )
     }
 }
 
@@ -292,93 +238,6 @@ private fun LinhaConquista(conquista: Conquista) {
             )
         }
     }
-}
-
-@Composable
-private fun LinhaAcao(
-    icone: Int,
-    texto: String,
-    acao: String,
-    corAcao: Color,
-    aoClicar: () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-            .clip(CantoCartao)
-            .background(Branco.copy(alpha = 0.62f))
-            .border(1.dp, Borda, CantoCartao)
-            .clickable(onClick = aoClicar)
-            .padding(horizontal = 18.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            painter = painterResource(icone),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.size(16.dp),
-        )
-        Spacer(Modifier.width(10.dp))
-        Text(
-            text = texto,
-            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.weight(1f),
-        )
-        Text(
-            text = acao,
-            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-            color = corAcao,
-        )
-    }
-}
-
-@Composable
-private fun DialogoEditar(
-    nome: String,
-    legenda: String,
-    aoFechar: () -> Unit,
-    aoSalvar: (String, String) -> Unit,
-) {
-    var novoNome by rememberSaveable { mutableStateOf(nome) }
-    var novaLegenda by rememberSaveable { mutableStateOf(legenda) }
-
-    AlertDialog(
-        onDismissRequest = aoFechar,
-        containerColor = Creme,
-        title = { Text(stringResource(R.string.perfil_editar_titulo)) },
-        text = {
-            Column {
-                CampoTexto(
-                    valor = novoNome,
-                    aoMudar = { novoNome = it },
-                    rotulo = stringResource(R.string.perfil_campo_nome),
-                    dica = stringResource(R.string.perfil_campo_nome_dica),
-                )
-                Spacer(Modifier.height(14.dp))
-                CampoTexto(
-                    valor = novaLegenda,
-                    aoMudar = { novaLegenda = it },
-                    rotulo = stringResource(R.string.perfil_campo_legenda),
-                    dica = stringResource(R.string.perfil_campo_legenda_dica),
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = { aoSalvar(novoNome.trim(), novaLegenda.trim()) },
-                enabled = novoNome.isNotBlank(),
-            ) {
-                Text(stringResource(R.string.acao_salvar))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = aoFechar) {
-                Text(stringResource(R.string.acao_cancelar))
-            }
-        },
-    )
 }
 
 @Preview(widthDp = 390, heightDp = 844, showBackground = true)

@@ -24,4 +24,7 @@ interface AtividadeDao {
 
     @Query("DELETE FROM atividades WHERE usuario_id = :usuarioId")
     suspend fun excluirDoUsuario(usuarioId: Long)
+
+    @Query("SELECT COUNT(*) FROM atividades WHERE usuario_id = :usuarioId and favorita = 1")
+    suspend fun contarFavoritas(usuarioId: Long): Int
 }

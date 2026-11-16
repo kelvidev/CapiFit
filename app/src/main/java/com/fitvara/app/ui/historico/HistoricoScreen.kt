@@ -196,6 +196,20 @@ private fun CartaoAtividade(
 
         Spacer(Modifier.height(12.dp))
 
+        if (atividade.notas.isNotBlank()){
+            HorizontalDivider(thickness = 1.dp, color = Borda)
+
+            Spacer(Modifier.height(5.dp))
+
+            Text(
+                text = atividade.notas,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                color = Tinta
+            )
+
+            Spacer(Modifier.height(5.dp))
+        }
+
         HorizontalDivider(thickness = 1.dp, color = Borda)
 
         Spacer(Modifier.height(11.dp))
