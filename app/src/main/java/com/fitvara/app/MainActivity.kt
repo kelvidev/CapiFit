@@ -37,6 +37,7 @@ import com.fitvara.app.ui.historico.HistoricoScreen
 import com.fitvara.app.ui.inicio.InicioScreen
 import com.fitvara.app.ui.login.LoginScreen
 import com.fitvara.app.ui.perfil.PerfilScreen
+import com.fitvara.app.ui.perfil.conquistasFeitas
 import com.fitvara.app.ui.sobre.SobreScreen
 import com.fitvara.app.ui.theme.FitvaraTheme
 import kotlinx.coroutines.launch
@@ -219,13 +220,23 @@ private fun CapiFit(banco: BancoCapiFit) {
                     aoSalvar = { atividade ->
                         escopo.launch {
                             val comDono = atividade.copy(usuarioId = usuarioId, favorita = eraFavorita)
+                            val antes = conquistasFeitas(atividades)
+                            val depois: List<Atividade>
+
                             if (comDono.id == 0L) {
                                 banco.atividadeDao().inserir(comDono)
                                 avisar(R.string.atividade_salva)
+                                depois = atividades + comDono
                             } else {
                                 banco.atividadeDao().atualizar(comDono)
                                 avisar(R.string.atividade_atualizada)
+                                depois = atividades.map{ if(it.id == comDono.id) comDono else it }
                             }
+
+                            if(conquistasFeitas(depois) > antes){
+                                avisar(R.string.conquista_desbloqueada)
+                            }
+
                             ir(Tela.Historico)
                         }
                     },

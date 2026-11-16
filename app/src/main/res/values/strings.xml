@@ -29,17 +29,17 @@
     <string name="nav_perfil">Perfil</string>
     <string name="nav_configuracoes">Configurações</string>
 
-    <string name="perfil_trilhas">trilhas</string>
+    <string name="perfil_atividades">atividades</string>
     <string name="perfil_km">km</string>
     <string name="perfil_recorde">km rec.</string>
-    <string name="conquista_primeira">Primeira trilha registrada</string>
+    <string name="conquista_primeira">Primeira atividade registrada</string>
     <string name="conquista_primeira_feita">Concluída · %1$s km</string>
     <string name="conquista_primeira_falta">Registre sua primeira atividade</string>
     <string name="conquista_100km">100 km acumulados</string>
     <string name="conquista_100km_detalhe">%1$s km no total</string>
-    <string name="conquista_5_no_mes">5 trilhas em um mês</string>
-    <string name="conquista_5_no_mes_detalhe">%1$d trilhas registradas</string>
-    <string name="conquista_5_no_mes_detalhe_um">1 trilha registrada</string>
+    <string name="conquista_5_no_mes">5 atividades em um mês</string>
+    <string name="conquista_5_no_mes_detalhe">Melhor mês: %1$d de 5</string>
+    <string name="conquista_desbloqueada">Conquista desbloqueada!</string>
     <string name="perfil_conquistas">CONQUISTAS</string>
     <string name="perfil_editar">Editar perfil</string>
     <string name="perfil_editar_titulo">Editar perfil</string>

@@ -1,6 +1,7 @@
 package com.fitvara.app.ui.perfil
 
 import com.fitvara.app.data.entidades.Atividade
+import com.fitvara.app.ui.inicio.totalKm
 
 fun recordeKm(atividades: List<Atividade>): Double {
     var maior = 0.0
@@ -37,4 +38,12 @@ fun maiorQuantidadeNoMes(atividades: List<Atividade>): Int {
         }
     }
     return maior
+}
+
+fun conquistasFeitas(atividades: List<Atividade>): Int {
+    var total = 0
+    if(atividades.isNotEmpty()) total++
+    if(totalKm(atividades) >= 100) total++
+    if(maiorQuantidadeNoMes(atividades) >= 5) total++
+    return total
 }
